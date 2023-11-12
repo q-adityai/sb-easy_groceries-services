@@ -6,5 +6,10 @@ namespace EasyGroceries.Inventory.Repositories.Interfaces;
 
 public interface IProductRepository
 {
-    Task<List<Product>> GetAllApplicableProducts();
+    Task<List<Product>> GetAllApplicableProductsAsync();
+    Task<List<Product>> GetProductsAsync();
+
+    Task<Product?> GetProductByNameAsync(string name);
+
+    Task<Product> CreateProductAsync(Product product);
 }

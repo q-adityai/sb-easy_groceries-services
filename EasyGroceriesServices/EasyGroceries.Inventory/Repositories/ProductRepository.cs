@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using EasyGroceries.Inventory.Model.Context;
 using EasyGroceries.Inventory.Model.Entities;
 using EasyGroceries.Inventory.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace EasyGroceries.Inventory.Repositories;
 
@@ -19,11 +20,30 @@ public class ProductRepository : IProductRepository
         _context.Database.EnsureCreated();
     }
 
-    public async Task<List<Product>> GetAllApplicableProducts()
+    public async Task<List<Product>> GetAllApplicableProductsAsync()
     {
-        var products = _context.Products.ToList();
         var currentDateTime = DateTimeOffset.UtcNow;
+        var products = _context.Products.Where(p => currentDateTime >= p.ValidFrom && currentDateTime <= p.ValidTo).ToList();
         
-        return await Task.FromResult(products.FindAll(p => currentDateTime >= p.ValidFrom && currentDateTime <= p.ValidTo));
+        return await Task.FromResult(products);
+    }
+    
+    public async Task<List<Product>> GetProductsAsync()
+    {
+        return await Task.FromResult(_context.Products.ToList());
+    }
+
+    public async Task<Product?> GetProductByNameAsync(string name)
+    {
+        return await _context.Products.Where(p => p.Name == name)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<Product> CreateProductAsync(Product product)
+    {
+        var trackedProduct = await _context.Products.AddAsync(product);
+        await _context.SaveChangesAsync();
+
+        return trackedProduct.Entity;
     }
 }

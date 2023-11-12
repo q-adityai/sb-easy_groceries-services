@@ -22,7 +22,6 @@ public class Program : FunctionsStartup
         builder.Services.AddAutoMapper(typeof(Program));
         
         builder.Services.TryAddSingleton<InventoryContext>();
-        builder.Services.TryAddSingleton<ICategoryRepository, CategoryRepository>();
         builder.Services.TryAddSingleton<IProductRepository, ProductRepository>();
     }
 }

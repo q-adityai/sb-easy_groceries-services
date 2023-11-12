@@ -1,4 +1,6 @@
 using AutoMapper;
+using EasyGroceries.Common.Entities;
+using EasyGroceries.Common.Enums;
 using EasyGroceries.Inventory.Dto;
 using EasyGroceries.Inventory.Model.Entities;
 
@@ -10,5 +12,12 @@ public class ProductProfile : Profile
     {
         CreateMap<Product, ProductDto>()
             .ForMember(dst => dst.Sku, opt => opt.MapFrom(src => src.Sku.Code));
+
+        CreateMap<ProductDto, Product>()
+            .ForMember(dst => dst.Id, opt=> opt.Ignore())
+            .ForMember(dst => dst.DiscountApplicable,
+                opt => opt.MapFrom(src =>
+                    src.Category != ProductCategory.PromotionCoupon))
+            .ForMember(dst => dst.Sku, opt => opt.MapFrom(src => Sku.Generate()));
     }
 }

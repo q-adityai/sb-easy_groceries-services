@@ -13,7 +13,6 @@ public class InventoryContext : DbContext
         _options = options.Value;
     }
 
-    public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
