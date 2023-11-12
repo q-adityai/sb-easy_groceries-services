@@ -2,16 +2,16 @@ using EasyGroceries.Common.Enums;
 
 namespace EasyGroceries.Common.Messaging.Events;
 
-public sealed class UserCreated : BaseEvent
+public sealed class UserCreatedEvent : BaseEvent
 {
-    public string Id { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
+    public string Id { get; set; } = null!;
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
+    public string Email { get; set; } = null!;
     public string? PhoneNumber { get; set; }
     public Address? DefaultBillingAddress { get; set; }
     public Address? DefaultDeliveryAddress { get; set; }
-    public UserCreated()
+    public UserCreatedEvent()
     {
         Type = EventType.UserCreated;
     }
