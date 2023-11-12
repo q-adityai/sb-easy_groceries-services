@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyGroceries.User.Tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyGroceries.Tests.Common", "EasyGroceries.Tests.Common\EasyGroceries.Tests.Common.csproj", "{721F8747-8311-4F2E-B714-EE330462812D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyGroceries.Inventory", "EasyGroceries.Inventory\EasyGroceries.Inventory.csproj", "{EAD3D422-1945-42A4-9F04-B7548B3CCAD7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{721F8747-8311-4F2E-B714-EE330462812D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{721F8747-8311-4F2E-B714-EE330462812D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{721F8747-8311-4F2E-B714-EE330462812D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAD3D422-1945-42A4-9F04-B7548B3CCAD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAD3D422-1945-42A4-9F04-B7548B3CCAD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAD3D422-1945-42A4-9F04-B7548B3CCAD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAD3D422-1945-42A4-9F04-B7548B3CCAD7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0BE45388-6783-4BCE-AA31-9524D64538C5} = {1AFDDC87-6405-420E-9E94-1BBEDC408297}
