@@ -3,7 +3,9 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoMapper;
 using EasyGroceries.Common.Dto;
+using EasyGroceries.Common.Enums;
 using EasyGroceries.Common.Messaging.Interfaces;
+using EasyGroceries.Tests.Common.Utils;
 using EasyGroceries.User.Api;
 using EasyGroceries.User.Dto;
 using EasyGroceries.User.Repositories.Interfaces;
@@ -14,7 +16,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace EasyGroceries.User.Tests.Api;
@@ -25,7 +26,6 @@ public class ApiTests
 
     private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly Mock<IMessagingService> _messagingServiceMock;
-    private readonly Mock<ILogger<HttpTrigger>> _loggerMock;
     
     
     private readonly HttpTrigger _service; 
@@ -38,20 +38,16 @@ public class ApiTests
 
         _userRepositoryMock = new Mock<IUserRepository>();
         _messagingServiceMock = new Mock<IMessagingService>();
-        _loggerMock = new Mock<ILogger<HttpTrigger>>();
 
         _service = new HttpTrigger(mapper, _userRepositoryMock.Object, _messagingServiceMock.Object,
-            _loggerMock.Object);
+            new Mock<ILogger<HttpTrigger>>().Object);
     }
 
     [Fact]
     public async Task GetUsers_No_Deleted_Users_Included_Returns_No_Users()
     {
         //Arrange
-        var queryCollectionItems = new Dictionary<string, StringValues> { { "IncludeDeletedUsers", "False" } };
-
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
+        var request = MockHttpRequest.Create();
         
         //Act
         var response = await _service.GetUsersAsync(request.Object) as OkObjectResult;
@@ -98,10 +94,7 @@ public class ApiTests
             .ReturnsAsync(setupUsers);
         
         
-        var queryCollectionItems = new Dictionary<string, StringValues> { { "IncludeDeletedUsers", "False" } };
-
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
+        var request = MockHttpRequest.Create();
         
         //Act
         var response = await _service.GetUsersAsync(request.Object) as OkObjectResult;
@@ -158,10 +151,7 @@ public class ApiTests
     public async Task GetUser_Not_Found()
     {
         //Arrange
-        var queryCollectionItems = new Dictionary<string, StringValues>();
-
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
+        var request = MockHttpRequest.Create();
         
         //Act
         var response = await _service.GetUserAsync(request.Object, "u_111") as NotFoundObjectResult;
@@ -204,10 +194,7 @@ public class ApiTests
         _userRepositoryMock.Setup(x => x.GetUserAsync(It.IsAny<string>()))
             .ReturnsAsync(setupUser);
         
-        var queryCollectionItems = new Dictionary<string, StringValues>();
-
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
+        var request = MockHttpRequest.Create();
         
         //Act
         var response = await _service.GetUserAsync(request.Object, "u_111") as OkObjectResult;
@@ -233,10 +220,7 @@ public class ApiTests
         _userRepositoryMock.Setup(x => x.GetUserAsync(It.IsAny<string>()))
             .ReturnsAsync(setupUser);
         
-        var queryCollectionItems = new Dictionary<string, StringValues>();
-
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
+        var request = MockHttpRequest.Create();
         
         //Act
         var response = await _service.GetUserAsync(request.Object, "u_111") as NotFoundObjectResult;
@@ -261,9 +245,7 @@ public class ApiTests
             .ReturnsAsync(setupUser);
         
         var queryCollectionItems = new Dictionary<string, StringValues>{ { "IncludeDeletedUsers", "True" } };
-
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
+        var request = MockHttpRequest.Create(query: new QueryCollection(queryCollectionItems));
         
         //Act
         var response = await _service.GetUserAsync(request.Object, "u_111") as OkObjectResult;
@@ -281,10 +263,7 @@ public class ApiTests
     public async Task SetUserActive_Returns_NotFound()
     {
         //Arrange
-        var queryCollectionItems = new Dictionary<string, StringValues>();
-
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
+        var request = MockHttpRequest.Create();
         
         //Act
         var response = await _service.SetUserActiveAsync(request.Object, "u_111") as NotFoundObjectResult;
@@ -311,10 +290,7 @@ public class ApiTests
         _userRepositoryMock.Setup(x => x.SaveUserAsync(It.IsAny<Model.Entities.User>()))
             .ReturnsAsync(setupUser);
         
-        var queryCollectionItems = new Dictionary<string, StringValues>();
-
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
+        var request = MockHttpRequest.Create();
         
         //Act
         var response = await _service.SetUserActiveAsync(request.Object, "u_111") as OkObjectResult;
@@ -327,16 +303,15 @@ public class ApiTests
         result.Payload.IsActive.Should().BeTrue();
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
+        
+        _messagingServiceMock.Verify(x => x.EmitEvent(It.Is<IEvent>(x => x.Type == EventType.UserActive)), Times.Once);
     }
     
     [Fact]
     public async Task SetUserInActive_Returns_NotFound()
     {
         //Arrange
-        var queryCollectionItems = new Dictionary<string, StringValues>();
-
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
+        var request = MockHttpRequest.Create();
         
         //Act
         var response = await _service.SetUserInActiveAsync(request.Object, "u_111") as NotFoundObjectResult;
@@ -363,10 +338,8 @@ public class ApiTests
         _userRepositoryMock.Setup(x => x.SaveUserAsync(It.IsAny<Model.Entities.User>()))
             .ReturnsAsync(setupUser);
         
-        var queryCollectionItems = new Dictionary<string, StringValues>();
 
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
+        var request = MockHttpRequest.Create();
         
         //Act
         var response = await _service.SetUserInActiveAsync(request.Object, "u_111") as OkObjectResult;
@@ -379,6 +352,8 @@ public class ApiTests
         result.Payload.IsActive.Should().BeFalse();
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
+        
+        _messagingServiceMock.Verify(x => x.EmitEvent(It.Is<IEvent>(x => x.Type == EventType.UserInactive)), Times.Once);
     }
 
     [Fact]
@@ -392,23 +367,8 @@ public class ApiTests
             Email = "mail@example.com"
         };
         
-        var ms = new MemoryStream();
-        var sw = new StreamWriter(ms);
- 
-        var json = JsonConvert.SerializeObject(inputUser);
- 
-        await sw.WriteAsync(json);
-        await sw.FlushAsync();
- 
-        ms.Position = 0;
+        var request = MockHttpRequest.Create(path:"/example.com", body: inputUser);
         
-        var queryCollectionItems = new Dictionary<string, StringValues>();
-
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Path).Returns("/example.com");
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
-        request.Setup(x => x.Body).Returns(ms);
-
         var setupUser = _fixture.Build<Model.Entities.User>()
             .With(x => x.IsActive, true)
             .With(x => x.IsAdmin, false)
@@ -433,6 +393,8 @@ public class ApiTests
         result.Payload!.IsAdmin.Should().BeFalse();
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
+        
+        _messagingServiceMock.Verify(x => x.EmitEvent(It.Is<IEvent>(x => x.Type == EventType.UserCreated)), Times.Once);
     }
     
     [Theory]
@@ -444,7 +406,7 @@ public class ApiTests
     [InlineData("", "User", "email@example.com")]
     [InlineData("", "", "email@example.com")]
     [InlineData("", "User", "")]
-    public async Task CreateUser_InValid_Input_Returns_BadRequest(string? firstName, string? lastName, string? email)
+    public async Task CreateUser_InValid_Input_Returns_BadRequest(string firstName, string lastName, string email)
     {
         //Arrange
         var inputUser = new UserDto()
@@ -454,22 +416,7 @@ public class ApiTests
             Email = email
         };
         
-        var ms = new MemoryStream();
-        var sw = new StreamWriter(ms);
- 
-        var json = JsonConvert.SerializeObject(inputUser);
- 
-        await sw.WriteAsync(json);
-        await sw.FlushAsync();
- 
-        ms.Position = 0;
-        
-        var queryCollectionItems = new Dictionary<string, StringValues>();
-
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Path).Returns("/example.com");
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
-        request.Setup(x => x.Body).Returns(ms);
+        var request = MockHttpRequest.Create(path:"/example.com", body: inputUser); 
 
         
         //Act
@@ -493,23 +440,9 @@ public class ApiTests
             Email = "mail@example.com"
         };
         
-        var ms = new MemoryStream();
-        var sw = new StreamWriter(ms);
- 
-        var json = JsonConvert.SerializeObject(inputUser);
- 
-        await sw.WriteAsync(json);
-        await sw.FlushAsync();
- 
-        ms.Position = 0;
-        
-        var queryCollectionItems = new Dictionary<string, StringValues>();
 
-        var request = new Mock<HttpRequest>();
-        request.Setup(x => x.Path).Returns("/example.com");
-        request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
-        request.Setup(x => x.Body).Returns(ms);
-
+        var request = MockHttpRequest.Create(path:"/example.com", body: inputUser); 
+            
         _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(new Model.Entities.User());
 

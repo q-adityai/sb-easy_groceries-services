@@ -8,6 +8,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1AFDDC87
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyGroceries.User.Tests", "EasyGroceries.User.Tests\EasyGroceries.User.Tests.csproj", "{0BE45388-6783-4BCE-AA31-9524D64538C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyGroceries.Tests.Common", "EasyGroceries.Tests.Common\EasyGroceries.Tests.Common.csproj", "{721F8747-8311-4F2E-B714-EE330462812D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,8 +28,13 @@ Global
 		{0BE45388-6783-4BCE-AA31-9524D64538C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BE45388-6783-4BCE-AA31-9524D64538C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BE45388-6783-4BCE-AA31-9524D64538C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{721F8747-8311-4F2E-B714-EE330462812D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{721F8747-8311-4F2E-B714-EE330462812D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{721F8747-8311-4F2E-B714-EE330462812D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{721F8747-8311-4F2E-B714-EE330462812D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0BE45388-6783-4BCE-AA31-9524D64538C5} = {1AFDDC87-6405-420E-9E94-1BBEDC408297}
+		{721F8747-8311-4F2E-B714-EE330462812D} = {1AFDDC87-6405-420E-9E94-1BBEDC408297}
 	EndGlobalSection
 EndGlobal
