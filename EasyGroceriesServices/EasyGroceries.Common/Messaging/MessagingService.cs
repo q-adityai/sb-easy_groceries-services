@@ -19,7 +19,7 @@ public class MessagingService : IMessagingService
     
     public async Task EmitEvent(IEvent baseEvent)
     {
-        _logger.LogInformation("Emitting event: {@Message}", baseEvent);
+        _logger.LogInformation("Emitting event: {Event}", JsonConvert.SerializeObject(baseEvent));
 
         var topicName = baseEvent.GetTopicName();
         _logger.LogInformation("Identified Topic to emit on: {TopicName}", topicName);
@@ -30,8 +30,9 @@ public class MessagingService : IMessagingService
 
         if (string.IsNullOrWhiteSpace(message.CorrelationId))
         {
-            _logger.LogInformation("Set CorrelationId");
-            message.CorrelationId = baseEvent.CorrelationId ?? Guid.NewGuid().ToString();
+            var correlationId = baseEvent.CorrelationId ?? Guid.NewGuid().ToString();
+            _logger.LogInformation("Set CorrelationId: {CorrelationId}", correlationId);
+            message.CorrelationId = correlationId;
         }
 
         await sender.SendMessageAsync(message);

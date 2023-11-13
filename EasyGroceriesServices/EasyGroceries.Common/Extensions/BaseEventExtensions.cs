@@ -14,6 +14,7 @@ public static class BaseEventExtensions
             EventType.UserActive => "easy-groceries-user",
             EventType.UserInactive => "easy-groceries-user",
             EventType.UserDeleted => "easy-groceries-user",
+            EventType.ProductCreated => "easy-groceries-inventory",
             _ => string.Empty
         };
     }

@@ -17,5 +17,8 @@ public enum EventType
     UserActive,
     
     [EnumMember(Value="UserDeleted")]
-    UserDeleted
+    UserDeleted,
+    
+    [EnumMember(Value="ProductCreated")]
+    ProductCreated
 }
