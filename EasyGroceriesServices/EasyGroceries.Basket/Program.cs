@@ -27,5 +27,6 @@ public class Program : FunctionsStartup
         builder.Services.TryAddSingleton<BasketContext>();
         builder.Services.TryAddSingleton<IUserRepository, UserRepository>();
         builder.Services.TryAddSingleton<IProductRepository, ProductRepository>();
+        builder.Services.TryAddSingleton<IBasketRepository, BasketRepository>();
     }
 }

@@ -18,8 +18,9 @@ public class Product
     [Required] public string Description { get; set; } = null!;
 
     [Required] public Money Price { get; set; } = null!;
+    [Required] public Money DiscountedPrice { get; set; } = null!;
 
-    [Required] public long StockQuantity { get; set; }
+    [Required] public int DiscountInMinorUnits { get; set; } = 0;
 
     [Required] public bool DiscountApplicable { get; set; }
 }

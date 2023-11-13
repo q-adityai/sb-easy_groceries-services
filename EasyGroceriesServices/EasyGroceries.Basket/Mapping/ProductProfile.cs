@@ -8,6 +8,8 @@ public class ProductProfile : Profile
 {
     public ProductProfile()
     {
-        CreateMap<ProductCreatedEvent, Product>();
+        CreateMap<ProductCreatedEvent, Product>()
+            .ForMember(dst => dst.DiscountedPrice, opt => opt.MapFrom(src => src.Price))
+            .ForMember(dst => dst.DiscountInMinorUnits, opt => opt.MapFrom(src => 0));
     }
 }

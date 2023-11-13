@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
 using EasyGroceries.Common.Dto;
+using EasyGroceries.Common.Extensions;
 using EasyGroceries.Common.Messaging.Events;
 using EasyGroceries.Common.Messaging.Interfaces;
 using EasyGroceries.Common.Utils;
@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace EasyGroceries.Inventory.Api;
 
@@ -63,15 +62,14 @@ public class HttpTrigger
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Products")]
         HttpRequest req)
     {
-        var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        var product = JsonConvert.DeserializeObject<ProductDto>(requestBody);
+        var product = await req.GetBody<ProductDto>();
 
-        _logger.LogInformation("Processing request for MethodName: {MethodName} with input: {Input}",
-            nameof(CreateProductAsync), requestBody);
+        _logger.LogInformation("Processing request for MethodName: {MethodName} with input: {@Input}",
+            nameof(CreateProductAsync), product);
 
         if (!DtoValidation.IsValid(product, out var result)) return result;
 
-        var existingProduct = await _productRepository.GetProductByNameAsync(product!.Name);
+        var existingProduct = await _productRepository.GetProductByNameAsync(product.Name);
         if (existingProduct != null)
         {
             var errorMessage = "Product with same name already exists. Use a different name.";

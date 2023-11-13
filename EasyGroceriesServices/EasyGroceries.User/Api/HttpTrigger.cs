@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
 using EasyGroceries.Common.Dto;
+using EasyGroceries.Common.Extensions;
 using EasyGroceries.Common.Messaging.Events;
 using EasyGroceries.Common.Messaging.Interfaces;
 using EasyGroceries.Common.Utils;
@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace EasyGroceries.User.Api;
 
@@ -72,7 +71,7 @@ public class HttpTrigger
         {
             return new OkObjectResult(StandardResponse.Success(_mapper.Map<UserDto>(user)));
         }
-
+        else
         {
             var errorMessage = $"User with userId: {userId} not found";
             _logger.LogError("{Message}", errorMessage);
@@ -85,15 +84,14 @@ public class HttpTrigger
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Users")]
         HttpRequest req)
     {
-        var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        var user = JsonConvert.DeserializeObject<UserDto>(requestBody);
+        var user = await req.GetBody<UserDto>();
 
-        _logger.LogInformation("Processing request for MethodName: {MethodName} with input: {Input}",
-            nameof(CreateUserAsync), requestBody);
+        _logger.LogInformation("Processing request for MethodName: {MethodName} with input: {@Input}",
+            nameof(CreateUserAsync), user);
 
         if (!DtoValidation.IsValid(user, out var result)) return result;
 
-        var existingUser = await _userRepository.GetUserByEmailAsync(user!.Email);
+        var existingUser = await _userRepository.GetUserByEmailAsync(user.Email);
         if (existingUser != null)
         {
             var errorMessage = "User with same email address already exists. Use a different email address";

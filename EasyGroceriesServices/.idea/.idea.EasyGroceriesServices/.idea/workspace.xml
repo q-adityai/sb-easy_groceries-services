@@ -9,10 +9,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6addc915-d986-4a79-8523-1a59a755126a" name="Changes" comment="BAck in running state">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.EasyGroceriesServices/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.EasyGroceriesServices/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EasyGroceries.Basket/Repositories/Interfaces/IUserRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/EasyGroceries.Basket/Repositories/Interfaces/IUserRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EasyGroceries.Basket/Repositories/UserRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/EasyGroceries.Basket/Repositories/UserRepository.cs" afterDir="false" />
+    <list default="true" id="6addc915-d986-4a79-8523-1a59a755126a" name="Changes" comment="Added idempotency check to User and Product subscribers&#10;&#10;ref #11">
+      <change afterPath="$PROJECT_DIR$/EasyGroceries.Basket/Api/HttpTrigger.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/EasyGroceries.Basket/Model/Entities/Basket.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/EasyGroceries.Basket/Model/Entities/BasketProduct.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/EasyGroceries.Common/Enums/BasketStatus.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EasyGroceries.Basket/EasyGroceries.Basket.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/EasyGroceries.Basket/EasyGroceries.Basket.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EasyGroceries.Basket/Mapping/ProductProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/EasyGroceries.Basket/Mapping/ProductProfile.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EasyGroceries.Basket/Model/Entities/Product.cs" beforeDir="false" afterPath="$PROJECT_DIR$/EasyGroceries.Basket/Model/Entities/Product.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EasyGroceries.Common/Entities/Constants.cs" beforeDir="false" afterPath="$PROJECT_DIR$/EasyGroceries.Common/Entities/Constants.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +33,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///Users/adityaiyer/Documents/GitHub/sb-easy_groceries-services/EasyGroceriesServices/EasyGroceries.Basket/Repositories/Interfaces/IProductRepository.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/EasyGroceries.Basket/local.settings.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock:///Users/adityaiyer/Documents/GitHub/sb-easy_groceries-services/EasyGroceriesServices/EasyGroceries.Common/Attributes/RequiredEnumAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/adityaiyer/Documents/GitHub/sb-easy_groceries-services/EasyGroceriesServices/EasyGroceries.Common/Attributes/RequiredEnumAttribute.cs" root0="SKIP_HIGHLIGHTING" />
@@ -276,7 +282,15 @@
       <option name="project" value="LOCAL" />
       <updated>1699893431468</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Added idempotency check to User and Product subscribers&#10;&#10;ref #11">
+      <option name="closed" value="true" />
+      <created>1699902641524</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1699902641524</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -302,7 +316,8 @@
     <MESSAGE value="Added Inventory AF&#10;&#10;ref #10" />
     <MESSAGE value="Added Product API&#10;&#10;ref #10" />
     <MESSAGE value="BAck in running state" />
-    <option name="LAST_COMMIT_MESSAGE" value="BAck in running state" />
+    <MESSAGE value="Added idempotency check to User and Product subscribers&#10;&#10;ref #11" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added idempotency check to User and Product subscribers&#10;&#10;ref #11" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
