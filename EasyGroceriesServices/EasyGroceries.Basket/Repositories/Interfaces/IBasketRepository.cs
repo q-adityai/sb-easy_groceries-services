@@ -6,5 +6,7 @@ public interface IBasketRepository
 {
     Task<Model.Entities.Basket?> GetBasketAsync(string basketId);
 
+    Task<Model.Entities.Basket> CreateBasketAsync(Model.Entities.Basket basket);
+
     Task<Model.Entities.Basket> SaveBasketAsync(Model.Entities.Basket basket);
 }

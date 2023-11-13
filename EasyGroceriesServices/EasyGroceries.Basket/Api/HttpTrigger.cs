@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using EasyGroceries.Basket.Dto;
 using EasyGroceries.Basket.Model.Entities;
@@ -13,9 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace EasyGroceries.Basket.Api;
 
@@ -58,6 +55,14 @@ public class HttpTrigger
             _logger.LogError("{Message}", errorMessage);
             return new NotFoundObjectResult(StandardResponse.Failure(errorMessage));
         }
+        else if (product.CategoryName == ProductCategory.PromotionCoupon.ToString() && basketProductDto.Quantity > 1)
+        {
+            //User is trying to apply multiple promotions, do not allow
+            var errorMessage = $"Cannot apply multiple promotions";
+            _logger.LogError("{Message}", errorMessage);
+            return new BadRequestObjectResult(StandardResponse.Failure(errorMessage));
+        }
+        
 
         Model.Entities.Basket? basket;
         //We have a basket Id, we must validate if it belongs to the same user
@@ -89,6 +94,8 @@ public class HttpTrigger
                 Status = BasketStatus.Empty,
                 CreatedAt = DateTimeOffset.UtcNow
             };
+
+            basket = await _basketRepository.CreateBasketAsync(basket);
         }
         
         //We have a basket with us, we can add products to it
@@ -97,7 +104,16 @@ public class HttpTrigger
         if (basket.Products.Exists(p => p.Product.Id == product.Id))
         {
             var index = basket.Products.FindIndex(p => p.Product.Id == product.Id);
+            
             var entry = basket.Products[index];
+            if (entry.Product.CategoryName == ProductCategory.PromotionCoupon.ToString())
+            {
+                //User has already applied a promotion, don't allow to add again
+                var errorMessage = $"Cannot apply multiple promotions";
+                _logger.LogError("{Message}", errorMessage);
+                return new BadRequestObjectResult(StandardResponse.Failure(errorMessage));
+            }
+            
             entry.Quantity += basketProductDto.Quantity;
 
             basket.Products[index] = entry;
@@ -116,6 +132,94 @@ public class HttpTrigger
 
         await _basketRepository.SaveBasketAsync(basket);
         
-        return new OkObjectResult(StandardResponse.Success());
+        return new OkObjectResult(StandardResponse.Success(basket.Id));
+    }
+    
+    [FunctionName("RemoveProductFromBasketAsync")]
+    public async Task<IActionResult> RemoveProductFromBasketAsync(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Baskets/Product/Remove")] HttpRequest req)
+    {
+        var basketProductDto = await req.GetBody<BasketProductRequestDto>();
+        _logger.LogInformation("Received request to process: {MethodName} with input: {@Input}", nameof(RemoveProductFromBasketAsync), basketProductDto);
+
+        if (!DtoValidation.IsValid(basketProductDto, out var result)) return result;
+
+        var user = await _userRepository.GetUserById(basketProductDto.UserId);
+        if (user == null)
+        {
+            var errorMessage = $"User with userId: {basketProductDto.UserId} not found";
+            _logger.LogError("{Message}", errorMessage);
+            return new NotFoundObjectResult(StandardResponse.Failure(errorMessage));
+        }
+        
+        var product = await _productRepository.GetProductById(basketProductDto.ProductId);
+        if (product == null)
+        {
+            var errorMessage = $"Product with productId: {basketProductDto.ProductId} not found";
+            _logger.LogError("{Message}", errorMessage);
+            return new NotFoundObjectResult(StandardResponse.Failure(errorMessage));
+        }
+
+        if (string.IsNullOrWhiteSpace(basketProductDto.BasketId))
+        {
+            var errorMessage = "The BasketId field is required";
+            _logger.LogError("{Message}", errorMessage);
+            return new BadRequestObjectResult(StandardResponse.Failure(errorMessage));
+        }
+
+        var basket = await _basketRepository.GetBasketAsync(basketProductDto.BasketId);
+        if (basket == null)
+        {
+            //We dont have a basket with the supplied Id, no point processing further
+            var errorMessage = $"Basket with basketId: {basketProductDto.BasketId} not found";
+            _logger.LogError("{Message}", errorMessage);
+            return new NotFoundObjectResult(StandardResponse.Failure(errorMessage));
+        }
+        
+        if (basketProductDto.UserId != basket.UserId)
+        {
+            //Supplied userId is not the owner of the basket
+            var errorMessage = $"Intended basket not found";
+            _logger.LogError("{Message}", errorMessage);
+            return new NotFoundObjectResult(StandardResponse.Failure(errorMessage));
+        }
+        
+        //If the intended product does not exist in the basket then we need to return
+        if (!basket.Products.Exists(p => p.Product.Id == product.Id))
+        {
+            var errorMessage = $"Intended product to remove not found";
+            _logger.LogError("{Message}", errorMessage);
+            return new BadRequestObjectResult(StandardResponse.Failure(errorMessage));
+        }
+        
+        var index = basket.Products.FindIndex(p => p.Product.Id == product.Id);
+        var entry = basket.Products[index];
+
+        //If the supplied quantity to remove is higher than the present quantity, we cannot proceed
+        if (basketProductDto.Quantity > entry.Quantity)
+        {
+            var errorMessage = $"Insufficient quantity to remove";
+            _logger.LogError("{Message}", errorMessage);
+            return new BadRequestObjectResult(StandardResponse.Failure(errorMessage));
+        }
+
+        //If the supplied quantity to remove matches the present quantity then we will remove the product line altogether else, just amend the quantity
+        if (basketProductDto.Quantity == entry.Quantity)
+        {
+            basket.Products.RemoveAt(index);
+        }
+        else
+        {
+            entry.Quantity -= basketProductDto.Quantity;
+            basket.Products[index] = entry;
+        }
+
+        //If
+        basket.Status = basket.Products.Count == 0 ? BasketStatus.Empty : BasketStatus.Active;
+
+        //Now that we have perform the required operation, we can save the basket
+        await _basketRepository.SaveBasketAsync(basket);
+        
+        return new OkObjectResult(StandardResponse.Success(basket.Id));
     }
 }
