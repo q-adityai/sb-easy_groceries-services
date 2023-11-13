@@ -1,5 +1,4 @@
 using EasyGroceries.Common.Enums;
-using EasyGroceries.Common.Messaging.Events;
 using EasyGroceries.Common.Messaging.Interfaces;
 
 namespace EasyGroceries.Common.Extensions;

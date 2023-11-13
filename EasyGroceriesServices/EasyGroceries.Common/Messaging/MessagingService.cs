@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using EasyGroceries.Common.Extensions;
 using EasyGroceries.Common.Messaging.Interfaces;
@@ -8,22 +10,22 @@ namespace EasyGroceries.Common.Messaging;
 
 public class MessagingService : IMessagingService
 {
-    private readonly ServiceBusClient _serviceBusClient;
     private readonly ILogger<MessagingService> _logger;
+    private readonly ServiceBusClient _serviceBusClient;
 
     public MessagingService(ServiceBusClient serviceBusClient, ILogger<MessagingService> logger)
     {
         _serviceBusClient = serviceBusClient;
         _logger = logger;
     }
-    
+
     public async Task EmitEvent(IEvent baseEvent)
     {
         _logger.LogInformation("Emitting event: {Event}", JsonConvert.SerializeObject(baseEvent));
 
         var topicName = baseEvent.GetTopicName();
         _logger.LogInformation("Identified Topic to emit on: {TopicName}", topicName);
-        
+
         var sender = _serviceBusClient.CreateSender(topicName);
         var message = new ServiceBusMessage(JsonConvert.SerializeObject(baseEvent));
         message.ApplicationProperties.Add("EventType", baseEvent.Type.ToString());

@@ -2,17 +2,17 @@ namespace EasyGroceries.Common.Dto;
 
 public class StandardResponse
 {
-    public bool IsSuccess { get; set; }
-    public string[]? Errors { get; set; }
-
     protected StandardResponse()
     {
     }
 
+    public bool IsSuccess { get; set; }
+    public string[]? Errors { get; set; }
+
 
     public static StandardResponse Failure(params string[]? errors)
     {
-        return new StandardResponse()
+        return new StandardResponse
         {
             IsSuccess = false,
             Errors = errors
@@ -21,16 +21,16 @@ public class StandardResponse
 
     public static StandardResponse Success()
     {
-        return new StandardResponse()
+        return new StandardResponse
         {
             IsSuccess = true,
             Errors = null
         };
     }
-    
+
     public static StandardResponse<T> Success<T>(T payload)
     {
-        return new StandardResponse<T>()
+        return new StandardResponse<T>
         {
             Payload = payload,
             IsSuccess = true,

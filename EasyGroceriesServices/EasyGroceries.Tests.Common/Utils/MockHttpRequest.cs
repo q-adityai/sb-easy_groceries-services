@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Primitives;
@@ -22,12 +24,12 @@ public static class MockHttpRequest
         {
             var ms = new MemoryStream();
             var sw = new StreamWriter(ms);
- 
+
             var json = JsonConvert.SerializeObject(body);
- 
+
             sw.Write(json);
             sw.Flush();
- 
+
             ms.Position = 0;
             request.Setup(x => x.Body).Returns(ms);
         }

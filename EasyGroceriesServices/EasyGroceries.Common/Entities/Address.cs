@@ -1,3 +1,4 @@
+using System;
 using EasyGroceries.Common.Enums;
 
 namespace EasyGroceries.Common.Entities;

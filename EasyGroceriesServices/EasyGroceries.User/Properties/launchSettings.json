@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "EasyGroceries.User": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7064",
+      "launchBrowser": false
+    }
+  }
+}

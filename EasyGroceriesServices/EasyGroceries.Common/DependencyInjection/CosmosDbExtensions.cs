@@ -14,4 +14,3 @@ public static class CosmosDbExtensions
         return builder;
     }
 }
-
