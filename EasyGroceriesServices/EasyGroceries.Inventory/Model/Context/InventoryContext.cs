@@ -13,7 +13,7 @@ public class InventoryContext : DbContext
         _options = options.Value;
     }
 
-    public DbSet<Product> Products { get; set; }
+    public DbSet<Product> Products { get; set; } = null!;
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

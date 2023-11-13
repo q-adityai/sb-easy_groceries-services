@@ -13,6 +13,7 @@ public class ProductCreatedEvent : BaseEvent
     public string Description { get; set; } = null!;
     public Money Price { get; set; } = null!;
     public long StockQuantity { get; set; }
+    public bool DiscountApplicable { get; set; }
     public ProductCreatedEvent()
     {
         Type = EventType.ProductCreated;
