@@ -1,3 +1,4 @@
+using System;
 using AutoMapper;
 using EasyGroceries.Common.Entities;
 using EasyGroceries.Common.Enums;
@@ -18,6 +19,8 @@ public class ProductProfile : Profile
             .ForMember(dst => dst.DiscountApplicable,
                 opt => opt.MapFrom(src =>
                     src.Category != ProductCategory.PromotionCoupon))
-            .ForMember(dst => dst.Sku, opt => opt.MapFrom(src => Sku.Generate()));
+            .ForMember(dst => dst.Sku, opt => opt.MapFrom(src => Sku.Generate()))
+            .ForMember(dst => dst.ValidFrom, opt => opt.MapFrom(src => DateTimeOffset.UtcNow))
+            .ForMember(dst => dst.ValidTo, opt => opt.MapFrom(src => DateTimeOffset.MaxValue));
     }
 }
