@@ -6,4 +6,5 @@ namespace EasyGroceries.Basket.Repositories.Interfaces;
 public interface IProductRepository
 {
     Task<Product> CreateProductAsync(Product product);
+    Task<Product?> GetProductById(string productId);
 }

@@ -1,7 +1,9 @@
+using System.Linq;
 using System.Threading.Tasks;
 using EasyGroceries.Basket.Model.Context;
 using EasyGroceries.Basket.Model.Entities;
 using EasyGroceries.Basket.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace EasyGroceries.Basket.Repositories;
 
@@ -21,5 +23,10 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
 
         return trackedUser.Entity;
+    }
+
+    public async Task<User?> GetUserById(string userId)
+    {
+        return await _context.Users.Where(u => u.Id == userId).FirstOrDefaultAsync();
     }
 }

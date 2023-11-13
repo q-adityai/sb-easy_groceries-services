@@ -6,4 +6,5 @@ namespace EasyGroceries.Basket.Repositories.Interfaces;
 public interface IUserRepository
 {
     Task<User> CreateUserAsync(User user);
+    Task<User?> GetUserById(string userId);
 }

@@ -76,6 +76,13 @@ public class TopicTrigger
 
     private async Task ProcessUserCreatedEvent(UserCreatedEvent eventToProcess)
     {
+        var existingUser = await _userRepository.GetUserById(eventToProcess.Id);
+        if (existingUser != null)
+        {
+            _logger.LogError("User already exists: {@ExistingUser} - {@Event}", existingUser, eventToProcess);
+            return;
+        }
+        
         var user = _mapper.Map<User>(eventToProcess);
 
         _logger.LogInformation("Saving User: {@User}", user);
@@ -84,6 +91,13 @@ public class TopicTrigger
 
     private async Task ProcessProductCreatedEvent(ProductCreatedEvent eventToProcess)
     {
+        var existingProduct = await _productRepository.GetProductById(eventToProcess.Id);
+        if (existingProduct != null)
+        {
+            _logger.LogError("Product already exists: {@ExistingProduct} - {@Event}", existingProduct, eventToProcess);
+            return;
+        }
+        
         var product = _mapper.Map<Product>(eventToProcess);
 
         _logger.LogInformation("Saving Product: {@Product}", product);
