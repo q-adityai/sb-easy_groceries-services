@@ -17,9 +17,9 @@ public class ProductRepository : IProductRepository
         _context.Database.EnsureCreated();
     }
 
-    public async Task<Product> CreateProductAsync(Product product)
+    public async Task<Product> SaveProductAsync(Product product)
     {
-        var trackedProduct = await _context.Products.AddAsync(product);
+        var trackedProduct = _context.Products.Update(product);
         await _context.SaveChangesAsync();
 
         return trackedProduct.Entity;

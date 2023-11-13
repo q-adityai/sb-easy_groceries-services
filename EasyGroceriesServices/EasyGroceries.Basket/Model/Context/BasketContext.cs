@@ -7,20 +7,14 @@ namespace EasyGroceries.Basket.Model.Context;
 
 public class BasketContext : DbContext
 {
-    private readonly CosmosDbOptions _options;
 
-    public BasketContext(IOptions<CosmosDbOptions> options)
+    public BasketContext(DbContextOptions<BasketContext> options) : base(options)
     {
-        _options = options.Value;
     }
 
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
     public DbSet<Entities.Basket> Baskets { get; set; } = null!;
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseCosmos(_options.Uri, _options.Key, _options.DatabaseName);
-        base.OnConfiguring(optionsBuilder);
-    }
+
 }

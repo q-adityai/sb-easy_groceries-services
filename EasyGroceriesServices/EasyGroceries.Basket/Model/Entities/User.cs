@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using EasyGroceries.Common.Entities;
 
 namespace EasyGroceries.Basket.Model.Entities;
 

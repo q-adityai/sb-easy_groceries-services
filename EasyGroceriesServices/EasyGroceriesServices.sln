@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyGroceries.Inventory", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyGroceries.Basket", "EasyGroceries.Basket\EasyGroceries.Basket.csproj", "{84D9069C-A594-4998-A307-D7EB8B5AEB1F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyGroceries.Basket.Tests", "EasyGroceries.Basket.Tests\EasyGroceries.Basket.Tests.csproj", "{E6D5570D-FD6D-406F-B759-CE1E831FB560}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,9 +46,14 @@ Global
 		{84D9069C-A594-4998-A307-D7EB8B5AEB1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84D9069C-A594-4998-A307-D7EB8B5AEB1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84D9069C-A594-4998-A307-D7EB8B5AEB1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6D5570D-FD6D-406F-B759-CE1E831FB560}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6D5570D-FD6D-406F-B759-CE1E831FB560}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6D5570D-FD6D-406F-B759-CE1E831FB560}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6D5570D-FD6D-406F-B759-CE1E831FB560}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0BE45388-6783-4BCE-AA31-9524D64538C5} = {1AFDDC87-6405-420E-9E94-1BBEDC408297}
 		{721F8747-8311-4F2E-B714-EE330462812D} = {1AFDDC87-6405-420E-9E94-1BBEDC408297}
+		{E6D5570D-FD6D-406F-B759-CE1E831FB560} = {1AFDDC87-6405-420E-9E94-1BBEDC408297}
 	EndGlobalSection
 EndGlobal

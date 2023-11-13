@@ -13,6 +13,7 @@ public class BasketRepository : IBasketRepository
     public BasketRepository(BasketContext context)
     {
         _context = context;
+        _context.Database.EnsureDeleted();
         _context.Database.EnsureCreated();
     }
     
