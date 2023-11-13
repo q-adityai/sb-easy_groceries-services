@@ -37,7 +37,7 @@ public class HttpTrigger
     
     [FunctionName("GetApplicableProductsAsync")]
     public async Task<IActionResult> GetApplicableProductsAsync(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "Products/Applicable")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Products/Applicable")] HttpRequest req)
     {
         _logger.LogInformation("Processing request for MethodName: {MethodName}", nameof(GetApplicableProductsAsync));
 
@@ -46,7 +46,7 @@ public class HttpTrigger
     
     [FunctionName("GetProductsAsync")]
     public async Task<IActionResult> GetProductsAsync(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "Products")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Products")] HttpRequest req)
     {
         _logger.LogInformation("Processing request for MethodName: {MethodName}", nameof(GetProductsAsync));
 
@@ -55,7 +55,7 @@ public class HttpTrigger
 
     [FunctionName("CreateProductAsync")]
     public async Task<IActionResult> CreateProductAsync(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "Products")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Products")] HttpRequest req)
     {
         var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
         var product = JsonConvert.DeserializeObject<ProductDto>(requestBody);

@@ -16,7 +16,6 @@ public class ProductRepository : IProductRepository
     public ProductRepository(InventoryContext context)
     {
         _context = context;
-        _context.Database.EnsureDeleted();
         _context.Database.EnsureCreated();
     }
 
