@@ -24,6 +24,14 @@ public class ProductRepository : IProductRepository
 
         return trackedProduct.Entity;
     }
+    
+    public async Task<Product> AddProductAsync(Product product)
+    {
+        var trackedProduct = await _context.Products.AddAsync(product);
+        await _context.SaveChangesAsync();
+
+        return trackedProduct.Entity;
+    }
 
     public async Task<Product?> GetProductById(string productId)
     {

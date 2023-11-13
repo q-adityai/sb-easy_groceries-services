@@ -15,6 +15,4 @@ public class BasketContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
     public DbSet<Entities.Basket> Baskets { get; set; } = null!;
-
-
 }

@@ -4,8 +4,8 @@ namespace EasyGroceries.Common.Extensions;
 
 public static class ObjectExtensions
 {
-    public static string ToString(this object input)
+    public static T Clone<T>(this T input)
     {
-        return JsonConvert.SerializeObject(input);
+        return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(input));
     }
 }

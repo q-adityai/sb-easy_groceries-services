@@ -5,6 +5,7 @@ namespace EasyGroceries.Basket.Repositories.Interfaces;
 
 public interface IProductRepository
 {
+    Task<Product> AddProductAsync(Product product);
     Task<Product> SaveProductAsync(Product product);
     Task<Product?> GetProductById(string productId);
 }

@@ -101,6 +101,6 @@ public class TopicTrigger
         var product = _mapper.Map<Product>(eventToProcess);
 
         _logger.LogInformation("Saving Product: {Product}", JsonConvert.SerializeObject(product));
-        await _productRepository.SaveProductAsync(product);
+        await _productRepository.AddProductAsync(product);
     }
 }
