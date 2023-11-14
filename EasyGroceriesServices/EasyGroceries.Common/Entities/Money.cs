@@ -1,4 +1,5 @@
 using EasyGroceries.Common.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace EasyGroceries.Common.Entities;
 
