@@ -304,6 +304,7 @@ public class HttpTrigger
             UserId = basket.UserId,
             ProductId = basketProduct.ProductId,
             Name = basketProduct.Name,
+            Description = basketProduct.Description,
             Quantity = basketProduct.Quantity,
             Price = basketProduct.Price,
             DiscountedPrice = basketProduct.DiscountedPrice,

@@ -8,7 +8,7 @@ namespace EasyGroceries.Common.DependencyInjection;
 
 public static class CosmosDbExtensions
 {
-    public static IFunctionsHostBuilder AddCosmosDb<T>(this IFunctionsHostBuilder builder) where T: DbContext
+    public static IFunctionsHostBuilder AddCosmosDb<T>(this IFunctionsHostBuilder builder, ServiceLifetime serviceLifetime = ServiceLifetime.Singleton) where T: DbContext
     {
         builder.Services.AddDbContext<T>(options =>
         {
