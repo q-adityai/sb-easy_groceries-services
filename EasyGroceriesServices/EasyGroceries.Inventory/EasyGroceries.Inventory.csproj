@@ -5,9 +5,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-        <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="6.0.24" />
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1"/>
+        <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="6.0.24"/>
         <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.2.0"/>
     </ItemGroup>
     <ItemGroup>
@@ -20,6 +20,6 @@
         </None>
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\EasyGroceries.Common\EasyGroceries.Common.csproj" />
+        <ProjectReference Include="..\EasyGroceries.Common\EasyGroceries.Common.csproj"/>
     </ItemGroup>
 </Project>

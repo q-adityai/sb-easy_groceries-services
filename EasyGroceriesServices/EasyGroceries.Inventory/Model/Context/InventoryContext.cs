@@ -7,17 +7,9 @@ namespace EasyGroceries.Inventory.Model.Context;
 
 public class InventoryContext : DbContext
 {
-    private readonly CosmosDbOptions _options;
-    public InventoryContext(IOptions<CosmosDbOptions> options)
+    public InventoryContext(DbContextOptions<InventoryContext> options) : base(options)
     {
-        _options = options.Value;
     }
 
     public DbSet<Product> Products { get; set; } = null!;
-    
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseCosmos(_options.Uri, _options.Key, _options.DatabaseName);
-        base.OnConfiguring(optionsBuilder);
-    }
 }

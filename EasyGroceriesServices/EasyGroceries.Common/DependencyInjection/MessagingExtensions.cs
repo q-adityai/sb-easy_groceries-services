@@ -1,3 +1,4 @@
+using System;
 using Azure.Messaging.ServiceBus;
 using EasyGroceries.Common.Configuration;
 using EasyGroceries.Common.Messaging;
@@ -15,10 +16,10 @@ public static class MessagingExtensions
         var configuration = builder.GetContext().Configuration;
         var messagingSection = configuration.GetSection(MessagingOptions.SectionName);
         var messagingOptions = messagingSection.Get<MessagingOptions>();
-        
+
         ArgumentNullException.ThrowIfNull(messagingOptions);
         ArgumentNullException.ThrowIfNull(messagingOptions.ConnectionString);
-        
+
         builder.Services.TryAddSingleton(s => new ServiceBusClient(messagingOptions.ConnectionString));
         builder.Services.TryAddSingleton<IMessagingService, MessagingService>();
 

@@ -7,6 +7,5 @@ namespace EasyGroceries.Common.Enums;
 [JsonConverter(typeof(StringEnumConverter))]
 public enum CountryCode
 {
-    [EnumMember(Value = "United Kingdom")]
-    Gb
+    [EnumMember(Value = "United Kingdom")] Gb
 }

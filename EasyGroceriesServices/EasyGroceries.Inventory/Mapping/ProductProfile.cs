@@ -15,7 +15,7 @@ public class ProductProfile : Profile
             .ForMember(dst => dst.Sku, opt => opt.MapFrom(src => src.Sku.Code));
 
         CreateMap<ProductDto, Product>()
-            .ForMember(dst => dst.Id, opt=> opt.Ignore())
+            .ForMember(dst => dst.Id, opt => opt.Ignore())
             .ForMember(dst => dst.DiscountApplicable,
                 opt => opt.MapFrom(src =>
                     src.Category != ProductCategory.PromotionCoupon))

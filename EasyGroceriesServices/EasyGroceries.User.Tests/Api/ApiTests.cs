@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoMapper;
@@ -23,16 +26,17 @@ namespace EasyGroceries.User.Tests.Api;
 public class ApiTests
 {
     private readonly IFixture _fixture;
+    private readonly Mock<IMessagingService> _messagingServiceMock;
+
+
+    private readonly HttpTrigger _service;
 
     private readonly Mock<IUserRepository> _userRepositoryMock;
-    private readonly Mock<IMessagingService> _messagingServiceMock;
-    
-    
-    private readonly HttpTrigger _service; 
+
     public ApiTests()
     {
         _fixture = new Fixture().Customize(new AutoMoqCustomization());
-        
+
         var amConfiguration = new MapperConfiguration(cfg => cfg.AddMaps(typeof(Program)));
         IMapper mapper = new Mapper(amConfiguration);
 
@@ -48,7 +52,7 @@ public class ApiTests
     {
         //Arrange
         var request = MockHttpRequest.Create();
-        
+
         //Act
         var response = await _service.GetUsersAsync(request.Object) as OkObjectResult;
         var result = (StandardResponse<List<UserDto>>)response!.Value;
@@ -58,9 +62,8 @@ public class ApiTests
         result.Payload.Should().BeEmpty();
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
-        
     }
-    
+
     [Fact]
     public async Task GetUsers_Deleted_Users_Included_Returns_No_Users()
     {
@@ -69,7 +72,7 @@ public class ApiTests
 
         var request = new Mock<HttpRequest>();
         request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
-        
+
         //Act
         var response = await _service.GetUsersAsync(request.Object) as OkObjectResult;
         var result = (StandardResponse<List<UserDto>>)response!.Value;
@@ -79,9 +82,8 @@ public class ApiTests
         result.Payload.Should().BeEmpty();
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
-        
     }
-    
+
     [Fact]
     public async Task GetUsers_No_Deleted_Users_Included_Returns_Users()
     {
@@ -92,10 +94,10 @@ public class ApiTests
             .ToList();
         _userRepositoryMock.Setup(x => x.GetUsersAsync(false))
             .ReturnsAsync(setupUsers);
-        
-        
+
+
         var request = MockHttpRequest.Create();
-        
+
         //Act
         var response = await _service.GetUsersAsync(request.Object) as OkObjectResult;
         var result = (StandardResponse<List<UserDto>>)response!.Value;
@@ -107,35 +109,35 @@ public class ApiTests
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
     }
-    
+
     [Fact]
     public async Task GetUsers_Deleted_Users_Included_Returns_Users()
     {
         //Arrange
         var setupUsers = new List<Model.Entities.User>();
-        
+
         var activeUsers = _fixture.Build<Model.Entities.User>()
             .With(x => x.IsActive, true)
             .CreateMany(5)
             .ToList();
-        
+
         var inActiveUsers = _fixture.Build<Model.Entities.User>()
             .With(x => x.IsActive, false)
             .CreateMany(8)
             .ToList();
-        
+
         setupUsers.AddRange(activeUsers);
         setupUsers.AddRange(inActiveUsers);
-        
+
         _userRepositoryMock.Setup(x => x.GetUsersAsync(true))
             .ReturnsAsync(setupUsers);
-        
-        
+
+
         var queryCollectionItems = new Dictionary<string, StringValues> { { "IncludeDeletedUsers", "True" } };
 
         var request = new Mock<HttpRequest>();
         request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
-        
+
         //Act
         var response = await _service.GetUsersAsync(request.Object) as OkObjectResult;
         var result = (StandardResponse<List<UserDto>>)response!.Value;
@@ -152,7 +154,7 @@ public class ApiTests
     {
         //Arrange
         var request = MockHttpRequest.Create();
-        
+
         //Act
         var response = await _service.GetUserAsync(request.Object, "u_111") as NotFoundObjectResult;
         var result = (StandardResponse)response!.Value;
@@ -162,16 +164,16 @@ public class ApiTests
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle(x => x == "User with userId: u_111 not found");
     }
-    
+
     [Fact]
     public async Task GetUser_Include_Deleted_User_Not_Found()
     {
         //Arrange
-        var queryCollectionItems = new Dictionary<string, StringValues>{ { "IncludeDeletedUsers", "True" } };
+        var queryCollectionItems = new Dictionary<string, StringValues> { { "IncludeDeletedUsers", "True" } };
 
         var request = new Mock<HttpRequest>();
         request.Setup(x => x.Query).Returns(new QueryCollection(queryCollectionItems));
-        
+
         //Act
         var response = await _service.GetUserAsync(request.Object, "u_111") as NotFoundObjectResult;
         var result = (StandardResponse)response!.Value;
@@ -181,7 +183,7 @@ public class ApiTests
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle(x => x == "User with userId: u_111 not found");
     }
-    
+
     [Fact]
     public async Task GetUser_Not_Included_Deleted_User_Returns_User()
     {
@@ -193,9 +195,9 @@ public class ApiTests
 
         _userRepositoryMock.Setup(x => x.GetUserAsync(It.IsAny<string>()))
             .ReturnsAsync(setupUser);
-        
+
         var request = MockHttpRequest.Create();
-        
+
         //Act
         var response = await _service.GetUserAsync(request.Object, "u_111") as OkObjectResult;
         var result = (StandardResponse<UserDto>)response!.Value;
@@ -207,7 +209,7 @@ public class ApiTests
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
     }
-    
+
     [Fact]
     public async Task GetUser_Not_Included_Deleted_User_Returns_Not_Found()
     {
@@ -219,9 +221,9 @@ public class ApiTests
 
         _userRepositoryMock.Setup(x => x.GetUserAsync(It.IsAny<string>()))
             .ReturnsAsync(setupUser);
-        
+
         var request = MockHttpRequest.Create();
-        
+
         //Act
         var response = await _service.GetUserAsync(request.Object, "u_111") as NotFoundObjectResult;
         var result = (StandardResponse)response!.Value;
@@ -231,7 +233,7 @@ public class ApiTests
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle(x => x == "User with userId: u_111 not found");
     }
-    
+
     [Fact]
     public async Task GetUser_Included_Deleted_User_Returns_User()
     {
@@ -243,10 +245,10 @@ public class ApiTests
 
         _userRepositoryMock.Setup(x => x.GetUserAsync(It.IsAny<string>()))
             .ReturnsAsync(setupUser);
-        
-        var queryCollectionItems = new Dictionary<string, StringValues>{ { "IncludeDeletedUsers", "True" } };
+
+        var queryCollectionItems = new Dictionary<string, StringValues> { { "IncludeDeletedUsers", "True" } };
         var request = MockHttpRequest.Create(query: new QueryCollection(queryCollectionItems));
-        
+
         //Act
         var response = await _service.GetUserAsync(request.Object, "u_111") as OkObjectResult;
         var result = (StandardResponse<UserDto>)response!.Value;
@@ -264,7 +266,7 @@ public class ApiTests
     {
         //Arrange
         var request = MockHttpRequest.Create();
-        
+
         //Act
         var response = await _service.SetUserActiveAsync(request.Object, "u_111") as NotFoundObjectResult;
         var result = (StandardResponse)response!.Value;
@@ -274,7 +276,7 @@ public class ApiTests
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle(x => x == "User with userId: u_111 not found");
     }
-    
+
     [Fact]
     public async Task SetUserActive_Returns_User()
     {
@@ -286,12 +288,12 @@ public class ApiTests
 
         _userRepositoryMock.Setup(x => x.GetUserAsync(It.IsAny<string>()))
             .ReturnsAsync(setupUser);
-        
+
         _userRepositoryMock.Setup(x => x.SaveUserAsync(It.IsAny<Model.Entities.User>()))
             .ReturnsAsync(setupUser);
-        
+
         var request = MockHttpRequest.Create();
-        
+
         //Act
         var response = await _service.SetUserActiveAsync(request.Object, "u_111") as OkObjectResult;
         var result = (StandardResponse<UserDto>)response!.Value;
@@ -303,16 +305,16 @@ public class ApiTests
         result.Payload.IsActive.Should().BeTrue();
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
-        
-        _messagingServiceMock.Verify(x => x.EmitEvent(It.Is<IEvent>(x => x.Type == EventType.UserActive)), Times.Once);
+
+        _messagingServiceMock.Verify(x => x.EmitEventAsync(It.Is<IEvent>(x => x.Type == EventType.UserActive)), Times.Once);
     }
-    
+
     [Fact]
     public async Task SetUserInActive_Returns_NotFound()
     {
         //Arrange
         var request = MockHttpRequest.Create();
-        
+
         //Act
         var response = await _service.SetUserInActiveAsync(request.Object, "u_111") as NotFoundObjectResult;
         var result = (StandardResponse)response!.Value;
@@ -322,7 +324,7 @@ public class ApiTests
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().ContainSingle(x => x == "User with userId: u_111 not found");
     }
-    
+
     [Fact]
     public async Task SetUserInActive_Returns_User()
     {
@@ -334,13 +336,13 @@ public class ApiTests
 
         _userRepositoryMock.Setup(x => x.GetUserAsync(It.IsAny<string>()))
             .ReturnsAsync(setupUser);
-        
+
         _userRepositoryMock.Setup(x => x.SaveUserAsync(It.IsAny<Model.Entities.User>()))
             .ReturnsAsync(setupUser);
-        
+
 
         var request = MockHttpRequest.Create();
-        
+
         //Act
         var response = await _service.SetUserInActiveAsync(request.Object, "u_111") as OkObjectResult;
         var result = (StandardResponse<UserDto>)response!.Value;
@@ -352,23 +354,24 @@ public class ApiTests
         result.Payload.IsActive.Should().BeFalse();
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
-        
-        _messagingServiceMock.Verify(x => x.EmitEvent(It.Is<IEvent>(x => x.Type == EventType.UserInactive)), Times.Once);
+
+        _messagingServiceMock.Verify(x => x.EmitEventAsync(It.Is<IEvent>(x => x.Type == EventType.UserInactive)),
+            Times.Once);
     }
 
     [Fact]
     public async Task CreateUser_Valid_Input_Successfully_Creates_User()
     {
         //Arrange
-        var inputUser = new UserDto()
+        var inputUser = new UserDto
         {
             FirstName = "Test",
             LastName = "User",
             Email = "mail@example.com"
         };
-        
-        var request = MockHttpRequest.Create(path:"/example.com", body: inputUser);
-        
+
+        var request = MockHttpRequest.Create("/example.com", body: inputUser);
+
         var setupUser = _fixture.Build<Model.Entities.User>()
             .With(x => x.IsActive, true)
             .With(x => x.IsAdmin, false)
@@ -378,7 +381,7 @@ public class ApiTests
             .Create();
         _userRepositoryMock.Setup(x => x.CreateUserAsync(It.IsAny<Model.Entities.User>()))
             .ReturnsAsync(setupUser);
-        
+
         //Act
         var response = await _service.CreateUserAsync(request.Object) as CreatedResult;
         var result = (StandardResponse<UserDto>)response!.Value;
@@ -393,10 +396,10 @@ public class ApiTests
         result.Payload!.IsAdmin.Should().BeFalse();
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
-        
-        _messagingServiceMock.Verify(x => x.EmitEvent(It.Is<IEvent>(x => x.Type == EventType.UserCreated)), Times.Once);
+
+        _messagingServiceMock.Verify(x => x.EmitEventAsync(It.Is<IEvent>(x => x.Type == EventType.UserCreated)), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(null!, null!, null!)]
     [InlineData("", "", "")]
@@ -409,16 +412,16 @@ public class ApiTests
     public async Task CreateUser_InValid_Input_Returns_BadRequest(string firstName, string lastName, string email)
     {
         //Arrange
-        var inputUser = new UserDto()
+        var inputUser = new UserDto
         {
             FirstName = firstName,
             LastName = lastName,
             Email = email
         };
-        
-        var request = MockHttpRequest.Create(path:"/example.com", body: inputUser); 
 
-        
+        var request = MockHttpRequest.Create("/example.com", body: inputUser);
+
+
         //Act
         var response = await _service.CreateUserAsync(request.Object) as BadRequestObjectResult;
         var result = (StandardResponse)response!.Value;
@@ -428,25 +431,25 @@ public class ApiTests
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().NotBeEmpty();
     }
-    
+
     [Fact]
     public async Task CreateUser_Valid_Input_Already_Existing_User()
     {
         //Arrange
-        var inputUser = new UserDto()
+        var inputUser = new UserDto
         {
             FirstName = "Test",
             LastName = "User",
             Email = "mail@example.com"
         };
-        
 
-        var request = MockHttpRequest.Create(path:"/example.com", body: inputUser); 
-            
+
+        var request = MockHttpRequest.Create("/example.com", body: inputUser);
+
         _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(new Model.Entities.User());
 
-        
+
         //Act
         var response = await _service.CreateUserAsync(request.Object) as BadRequestObjectResult;
         var result = (StandardResponse)response!.Value;

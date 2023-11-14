@@ -1,9 +1,15 @@
+using EasyGroceries.Common.Entities;
 using EasyGroceries.Common.Enums;
 
 namespace EasyGroceries.Common.Messaging.Events;
 
 public sealed class UserCreatedEvent : BaseEvent
 {
+    public UserCreatedEvent()
+    {
+        Type = EventType.UserCreated;
+    }
+
     public string Id { get; set; } = null!;
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
@@ -11,8 +17,4 @@ public sealed class UserCreatedEvent : BaseEvent
     public string? PhoneNumber { get; set; }
     public Address? DefaultBillingAddress { get; set; }
     public Address? DefaultDeliveryAddress { get; set; }
-    public UserCreatedEvent()
-    {
-        Type = EventType.UserCreated;
-    }
 }

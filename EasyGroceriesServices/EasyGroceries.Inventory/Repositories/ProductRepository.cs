@@ -22,11 +22,12 @@ public class ProductRepository : IProductRepository
     public async Task<List<Product>> GetAllApplicableProductsAsync()
     {
         var currentDateTime = DateTimeOffset.UtcNow;
-        var products = _context.Products.Where(p => currentDateTime >= p.ValidFrom && currentDateTime <= p.ValidTo).ToList();
-        
+        var products = _context.Products.Where(p => currentDateTime >= p.ValidFrom && currentDateTime <= p.ValidTo)
+            .ToList();
+
         return await Task.FromResult(products);
     }
-    
+
     public async Task<List<Product>> GetProductsAsync()
     {
         return await Task.FromResult(_context.Products.ToList());

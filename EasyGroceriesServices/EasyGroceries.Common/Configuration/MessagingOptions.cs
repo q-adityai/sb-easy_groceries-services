@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Options;
-
 namespace EasyGroceries.Common.Configuration;
 
 public class MessagingOptions
