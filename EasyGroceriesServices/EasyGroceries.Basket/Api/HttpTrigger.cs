@@ -315,4 +315,85 @@ public class HttpTrigger
 
         return new OkObjectResult(StandardResponse.Success(basket.Id));
     }
+    
+    [FunctionName("BasketPreviewAsync")]
+    public async Task<IActionResult> BasketPreviewAsync(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Baskets/{basketId}/Preview")] HttpRequest req, string basketId)
+    {
+        _logger.LogInformation("Received request to process: {MethodName} with input: {@Input}", nameof(BasketPreviewAsync), basketId);
+
+        if (string.IsNullOrWhiteSpace(basketId))
+        {
+            var errorMessage = $"BasketId cannot be null or empty";
+            _logger.LogError("{Message}", errorMessage);
+            return new BadRequestObjectResult(StandardResponse.Failure(errorMessage));
+        }
+        
+        var basket = await _basketContext.Baskets.Include(b => b.Products)
+            .ThenInclude(basketProduct => basketProduct.DiscountedPrice).Include(basket => basket.Products)
+            .ThenInclude(basketProduct => basketProduct.Price).FirstOrDefaultAsync(b => b.Id == basketId);
+        if (basket == null)
+        {
+            //We dont have a basket with the supplied Id, no point processing further
+            var errorMessage = $"Basket with basketId: {basketId} not found";
+            _logger.LogError("{Message}", errorMessage);
+            return new NotFoundObjectResult(StandardResponse.Failure(errorMessage));
+        }
+        else if (basket.Status != BasketStatus.CheckedOut)
+        {
+            var errorMessage = $"Cannot preview basket as it is in the state: {basket.Status.ToString()}";
+            _logger.LogError("{Message}", errorMessage);
+            return new BadRequestObjectResult(StandardResponse.Failure(errorMessage));
+        }
+        
+        var user = await _basketContext.Users.Include(user => user.DefaultDeliveryAddress).FirstOrDefaultAsync(u => u.Id == basket.UserId);
+        if (user == null)
+        {
+            var errorMessage = $"User with userId: {basket.UserId} not found";
+            _logger.LogError("{Message}", errorMessage);
+            return new NotFoundObjectResult(StandardResponse.Failure(errorMessage));
+        }
+
+        var basketPreviewDto = new BasketPreviewDto
+        {
+            BasketId = basket.Id,
+            UserId = user.Id,
+            BasketValue = new Money
+            {
+                Currency = Currency.Gbp,
+                AmountInMinorUnits = basket.Products.Sum(p => p.DiscountedPrice.AmountInMinorUnits * p.Quantity)
+            },
+            Products = basket.Products.Select(bp => new BasketProductPreviewDto
+            {
+                Name = bp.Name,
+                Description = bp.Description,
+                IncludeInDelivery = bp.IncludeInDelivery,
+                Price = new Money
+                {
+                    Currency = bp.Price.Currency,
+                    AmountInMinorUnits = bp.Price.AmountInMinorUnits
+                },
+                DiscountedPrice = new Money
+                {
+                    Currency = bp.DiscountedPrice.Currency,
+                    AmountInMinorUnits = bp.DiscountedPrice.AmountInMinorUnits
+                },
+                DiscountPercentInMinorUnits = bp.DiscountPercentInMinorUnits,
+                Quantity = bp.Quantity
+            }).ToList(),
+            DeliveryAddress = new AddressDto
+            {
+                Line1 = user.DefaultDeliveryAddress!.Line1,
+                Line2 = user.DefaultDeliveryAddress!.Line2,
+                Line3 = user.DefaultDeliveryAddress!.Line3,
+                City = user.DefaultDeliveryAddress!.City,
+                County = user.DefaultDeliveryAddress!.County,
+                Postcode = user.DefaultDeliveryAddress!.Postcode,
+                Country = user.DefaultDeliveryAddress!.Country,
+                CountryCode = user.DefaultDeliveryAddress!.CountryCode
+            }
+        };
+        
+        return new OkObjectResult(StandardResponse.Success(basketPreviewDto));
+    }
 }
