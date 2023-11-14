@@ -79,7 +79,7 @@ public class HttpTrigger
 
         var dbResponse = await _productRepository.CreateProductAsync(_mapper.Map<Product>(product));
 
-        await _messagingService.EmitEvent(_mapper.Map<ProductCreatedEvent>(dbResponse));
+        await _messagingService.EmitEventAsync(_mapper.Map<ProductCreatedEvent>(dbResponse));
 
         return new CreatedResult(new Uri(req.Path.ToUriComponent()),
             StandardResponse.Success(_mapper.Map<ProductDto>(dbResponse)));

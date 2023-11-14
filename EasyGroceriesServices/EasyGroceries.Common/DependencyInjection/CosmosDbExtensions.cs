@@ -17,6 +17,7 @@ public static class CosmosDbExtensions
             var cosmosDbOptions = cosmosDbOptionsSection.Get<CosmosDbOptions>();
             
             options.UseCosmos(cosmosDbOptions.Uri, cosmosDbOptions.Key, cosmosDbOptions.DatabaseName);
+            //options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         }, ServiceLifetime.Singleton, ServiceLifetime.Singleton);
         return builder;
     }

@@ -20,7 +20,7 @@ public class Product
     public Money Price { get; set; } = null!;
     public Money DiscountedPrice { get; set; } = null!;
 
-    public int DiscountInMinorUnits { get; set; }
+    public int DiscountPercentInMinorUnits { get; set; }
 
     public bool DiscountApplicable { get; set; }
 }

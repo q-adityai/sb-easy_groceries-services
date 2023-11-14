@@ -306,7 +306,7 @@ public class ApiTests
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
 
-        _messagingServiceMock.Verify(x => x.EmitEvent(It.Is<IEvent>(x => x.Type == EventType.UserActive)), Times.Once);
+        _messagingServiceMock.Verify(x => x.EmitEventAsync(It.Is<IEvent>(x => x.Type == EventType.UserActive)), Times.Once);
     }
 
     [Fact]
@@ -355,7 +355,7 @@ public class ApiTests
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
 
-        _messagingServiceMock.Verify(x => x.EmitEvent(It.Is<IEvent>(x => x.Type == EventType.UserInactive)),
+        _messagingServiceMock.Verify(x => x.EmitEventAsync(It.Is<IEvent>(x => x.Type == EventType.UserInactive)),
             Times.Once);
     }
 
@@ -397,7 +397,7 @@ public class ApiTests
         result.IsSuccess.Should().BeTrue();
         result.Errors.Should().BeNull();
 
-        _messagingServiceMock.Verify(x => x.EmitEvent(It.Is<IEvent>(x => x.Type == EventType.UserCreated)), Times.Once);
+        _messagingServiceMock.Verify(x => x.EmitEventAsync(It.Is<IEvent>(x => x.Type == EventType.UserCreated)), Times.Once);
     }
 
     [Theory]
