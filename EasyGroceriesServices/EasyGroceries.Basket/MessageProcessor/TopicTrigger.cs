@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
 using AutoMapper;
+using EasyGroceries.Basket.Model.Context;
 using EasyGroceries.Basket.Model.Entities;
-using EasyGroceries.Basket.Repositories.Interfaces;
 using EasyGroceries.Common.Enums;
 using EasyGroceries.Common.Messaging.Events;
 using Microsoft.Azure.WebJobs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -14,16 +15,13 @@ public class TopicTrigger
 {
     private readonly ILogger<TopicTrigger> _logger;
     private readonly IMapper _mapper;
-    private readonly IProductRepository _productRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly BasketContext _context;
 
-    public TopicTrigger(ILogger<TopicTrigger> logger, IMapper mapper, IUserRepository userRepository,
-        IProductRepository productRepository)
+    public TopicTrigger(ILogger<TopicTrigger> logger, IMapper mapper, BasketContext context)
     {
         _logger = logger;
         _mapper = mapper;
-        _userRepository = userRepository;
-        _productRepository = productRepository;
+        _context = context;
     }
 
     [FunctionName("UserSubscriber")]
@@ -76,7 +74,7 @@ public class TopicTrigger
 
     private async Task ProcessUserCreatedEvent(UserCreatedEvent eventToProcess)
     {
-        var existingUser = await _userRepository.GetUserById(eventToProcess.Id);
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == eventToProcess.Id);
         if (existingUser != null)
         {
             _logger.LogError("User already exists: {@ExistingUser} - {@Event}", existingUser, eventToProcess);
@@ -86,12 +84,13 @@ public class TopicTrigger
         var user = _mapper.Map<User>(eventToProcess);
 
         _logger.LogInformation("Saving User: {@User}", user);
-        await _userRepository.CreateUserAsync(user);
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
     }
 
     private async Task ProcessProductCreatedEvent(ProductCreatedEvent eventToProcess)
     {
-        var existingProduct = await _productRepository.GetProductById(eventToProcess.Id);
+        var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == eventToProcess.Id);
         if (existingProduct != null)
         {
             _logger.LogError("Product already exists: {@ExistingProduct} - {@Event}", existingProduct, eventToProcess);
@@ -101,6 +100,7 @@ public class TopicTrigger
         var product = _mapper.Map<Product>(eventToProcess);
 
         _logger.LogInformation("Saving Product: {Product}", JsonConvert.SerializeObject(product));
-        await _productRepository.AddProductAsync(product);
+        await _context.Products.AddAsync(product);
+        await _context.SaveChangesAsync();
     }
 }

@@ -14,6 +14,6 @@ public class User
     [Required] public string Email { get; set; } = null!;
 
     public string? PhoneNumber { get; set; }
-    public Address? DefaultBillingAddress { get; set; }
-    public Address? DefaultDeliveryAddress { get; set; }
+    public DefaultAddress? DefaultBillingAddress { get; set; }
+    public DefaultAddress? DefaultDeliveryAddress { get; set; }
 }

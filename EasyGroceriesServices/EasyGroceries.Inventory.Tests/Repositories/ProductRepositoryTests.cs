@@ -17,7 +17,7 @@ public class ProductRepositoryTests
     public async Task GetAllApplicableProductsAsync_Returns_Products()
     {
         //Arrange
-        await using var inventoryContext = CreateInventoryContext(nameof(GetAllApplicableProductsAsync_Returns_Products));
+        await using var inventoryContext = CreateMockDbContext(nameof(GetAllApplicableProductsAsync_Returns_Products));
         var service = new ProductRepository(inventoryContext);
         
         inventoryContext.Products.AddRange(_fixture.Build<Product>()
@@ -38,7 +38,7 @@ public class ProductRepositoryTests
     public async Task GetProductsAsync_Returns_Products()
     {
         //Arrange
-        await using var inventoryContext = CreateInventoryContext(nameof(GetProductsAsync_Returns_Products));
+        await using var inventoryContext = CreateMockDbContext(nameof(GetProductsAsync_Returns_Products));
         var service = new ProductRepository(inventoryContext);
 
         inventoryContext.Products.AddRange(_fixture.Build<Product>()
@@ -57,7 +57,7 @@ public class ProductRepositoryTests
     public async Task GetProductByNameAsync_Returns_Product()
     {
         //Arrange
-        await using var inventoryContext = CreateInventoryContext(nameof(GetProductByNameAsync_Returns_Product));
+        await using var inventoryContext = CreateMockDbContext(nameof(GetProductByNameAsync_Returns_Product));
         var service = new ProductRepository(inventoryContext);
 
         inventoryContext.Products.Add(_fixture.Build<Product>()
@@ -76,7 +76,7 @@ public class ProductRepositoryTests
     public async Task GetProductByNameAsync_Returns_Null()
     {
         //Arrange
-        await using var inventoryContext = CreateInventoryContext(nameof(GetProductByNameAsync_Returns_Null));
+        await using var inventoryContext = CreateMockDbContext(nameof(GetProductByNameAsync_Returns_Null));
         var service = new ProductRepository(inventoryContext);
 
         inventoryContext.Products.Add(_fixture.Build<Product>()
@@ -97,7 +97,7 @@ public class ProductRepositoryTests
         //Arrange
         var product = _fixture.Create<Product>();
         
-        await using var inventoryContext = CreateInventoryContext(nameof(CreateProductAsync_Creates_Product));
+        await using var inventoryContext = CreateMockDbContext(nameof(CreateProductAsync_Creates_Product));
         var service = new ProductRepository(inventoryContext);
         
         //Act
@@ -111,7 +111,7 @@ public class ProductRepositoryTests
         response.ValidTo.Should().Be(product.ValidTo);
     }
 
-    private InventoryContext CreateInventoryContext(string databaseName)
+    private InventoryContext CreateMockDbContext(string databaseName)
     {
         var dbOptions = new DbContextOptionsBuilder<InventoryContext>();
         dbOptions.UseInMemoryDatabase(databaseName);

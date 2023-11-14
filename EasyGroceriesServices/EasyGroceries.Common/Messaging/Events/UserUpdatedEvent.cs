@@ -3,11 +3,11 @@ using EasyGroceries.Common.Enums;
 
 namespace EasyGroceries.Common.Messaging.Events;
 
-public sealed class UserCreatedEvent : BaseEvent
+public sealed class UserUpdatedEvent : BaseEvent
 {
-    public UserCreatedEvent()
+    public UserUpdatedEvent()
     {
-        Type = EventType.UserCreated;
+        Type = EventType.UserUpdated;
     }
 
     public string Id { get; set; } = null!;

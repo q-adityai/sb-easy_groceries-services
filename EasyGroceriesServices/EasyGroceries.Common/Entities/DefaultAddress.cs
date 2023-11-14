@@ -1,11 +1,12 @@
 using System;
 using EasyGroceries.Common.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace EasyGroceries.Common.Entities;
 
-public class Address
+[Owned]
+public class DefaultAddress
 {
-    public string Id { get; set; } = $"{Constants.AddressPrefix}{Guid.NewGuid()}";
     public string Line1 { get; set; }
     public string? Line2 { get; set; }
     public string? Line3 { get; set; }

@@ -14,6 +14,8 @@ public enum EventType
     [EnumMember(Value = "UserActive")] UserActive,
 
     [EnumMember(Value = "UserDeleted")] UserDeleted,
+    
+    [EnumMember(Value = "UserUpdated")] UserUpdated,
 
     [EnumMember(Value = "ProductCreated")] ProductCreated,
     

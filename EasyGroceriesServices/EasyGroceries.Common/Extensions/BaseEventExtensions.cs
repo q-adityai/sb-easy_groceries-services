@@ -13,6 +13,7 @@ public static class BaseEventExtensions
             EventType.UserActive => "easy-groceries-user",
             EventType.UserInactive => "easy-groceries-user",
             EventType.UserDeleted => "easy-groceries-user",
+            EventType.UserUpdated => "easy-groceries-user",
             EventType.ProductCreated => "easy-groceries-inventory",
             EventType.ProductCheckedOut => "easy-groceries-basket",
             _ => string.Empty
