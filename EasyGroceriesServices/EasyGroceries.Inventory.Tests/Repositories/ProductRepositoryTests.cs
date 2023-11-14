@@ -57,7 +57,7 @@ public class ProductRepositoryTests
     public async Task GetProductByNameAsync_Returns_Product()
     {
         //Arrange
-        await using var inventoryContext = CreateInventoryContext(nameof(GetProductsAsync_Returns_Products));
+        await using var inventoryContext = CreateInventoryContext(nameof(GetProductByNameAsync_Returns_Product));
         var service = new ProductRepository(inventoryContext);
 
         inventoryContext.Products.Add(_fixture.Build<Product>()
@@ -115,8 +115,6 @@ public class ProductRepositoryTests
     {
         var dbOptions = new DbContextOptionsBuilder<InventoryContext>();
         dbOptions.UseInMemoryDatabase(databaseName);
-
-        var inventoryContext = new InventoryContext(dbOptions.Options);
-        return inventoryContext;
+        return new InventoryContext(dbOptions.Options);
     }
 }
