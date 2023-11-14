@@ -9,6 +9,7 @@ public class ProductCheckedOutEvent : BaseEvent
     public string UserId { get; set; }
     public string ProductId { get; set; }
     public string Name { get; set; }
+    public string Description { get; set; }
     public long Quantity { get; set; }
     
     public Money Price { get; set; } = null!;
