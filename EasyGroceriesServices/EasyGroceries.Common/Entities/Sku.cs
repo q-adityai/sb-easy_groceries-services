@@ -1,18 +1,8 @@
-using shortid;
-using shortid.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace EasyGroceries.Common.Entities;
-
+[Owned]
 public class Sku
 {
-    private Sku()
-    {
-    }
-
-    public string Code { get; private set; } = null!;
-
-    public static Sku Generate()
-    {
-        return new Sku { Code = ShortId.Generate(new GenerationOptions(true, false, 8)) };
-    }
+    public string Code { get; set; } = null!;
 }

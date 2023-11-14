@@ -1,19 +1,20 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using EasyGroceries.Common.Dto;
+using EasyGroceries.Common.Entities;
 using EasyGroceries.Common.Extensions;
 using EasyGroceries.Common.Messaging.Events;
 using EasyGroceries.Common.Messaging.Interfaces;
 using EasyGroceries.Common.Utils;
 using EasyGroceries.Inventory.Dto;
+using EasyGroceries.Inventory.Model.Context;
 using EasyGroceries.Inventory.Model.Entities;
-using EasyGroceries.Inventory.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace EasyGroceries.Inventory.Api;
@@ -23,27 +24,14 @@ public class HttpTrigger
     private readonly ILogger<HttpTrigger> _logger;
     private readonly IMapper _mapper;
     private readonly IMessagingService _messagingService;
-    private readonly IProductRepository _productRepository;
+    private readonly InventoryContext _inventoryContext;
 
-    public HttpTrigger(IMapper mapper, ILogger<HttpTrigger> logger, IProductRepository productRepository,
-        IMessagingService messagingService)
+    public HttpTrigger(IMapper mapper, ILogger<HttpTrigger> logger, IMessagingService messagingService, InventoryContext inventoryContext)
     {
         _mapper = mapper;
         _logger = logger;
-        _productRepository = productRepository;
         _messagingService = messagingService;
-    }
-
-    [FunctionName("GetApplicableProductsAsync")]
-    public async Task<IActionResult> GetApplicableProductsAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Products/Applicable")]
-        HttpRequest req)
-    {
-        _logger.LogInformation("Processing request for MethodName: {MethodName}", nameof(GetApplicableProductsAsync));
-
-        return new OkObjectResult(
-            StandardResponse.Success(
-                _mapper.Map<List<ProductDto>>(await _productRepository.GetAllApplicableProductsAsync())));
+        _inventoryContext = inventoryContext;
     }
 
     [FunctionName("GetProductsAsync")]
@@ -53,8 +41,9 @@ public class HttpTrigger
     {
         _logger.LogInformation("Processing request for MethodName: {MethodName}", nameof(GetProductsAsync));
 
+        var products = await _inventoryContext.Products.ToListAsync();
         return new OkObjectResult(
-            StandardResponse.Success(_mapper.Map<List<ProductDto>>(await _productRepository.GetProductsAsync())));
+            StandardResponse.Success(products));
     }
 
     [FunctionName("CreateProductAsync")]
@@ -62,14 +51,15 @@ public class HttpTrigger
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Products")]
         HttpRequest req)
     {
-        var product = await req.GetBody<ProductDto>();
+        var createProductRequestDto = await req.GetBody<CreateProductRequestDto>();
 
         _logger.LogInformation("Processing request for MethodName: {MethodName} with input: {@Input}",
-            nameof(CreateProductAsync), product);
+            nameof(CreateProductAsync), createProductRequestDto);
 
-        if (!DtoValidation.IsValid(product, out var result)) return result;
+        if (!DtoValidation.IsValid(createProductRequestDto, out var result)) return result;
 
-        var existingProduct = await _productRepository.GetProductByNameAsync(product.Name);
+        var existingProduct = await _inventoryContext.Products.FirstOrDefaultAsync(p =>
+            p.Name == createProductRequestDto.Name);
         if (existingProduct != null)
         {
             var errorMessage = "Product with same name already exists. Use a different name.";
@@ -77,11 +67,15 @@ public class HttpTrigger
             return new BadRequestObjectResult(StandardResponse.Failure(errorMessage));
         }
 
-        var dbResponse = await _productRepository.CreateProductAsync(_mapper.Map<Product>(product));
+        var newProduct = _mapper.Map<Product>(createProductRequestDto);
+        newProduct.Id = $"{Constants.ProductPrefix}{Guid.NewGuid()}";
+        await _inventoryContext.AddAsync(newProduct);
+        await _inventoryContext.SaveChangesAsync();
 
-        await _messagingService.EmitEventAsync(_mapper.Map<ProductCreatedEvent>(dbResponse));
+        var productCreatedEvent = _mapper.Map<ProductCreatedEvent>(newProduct);
+        await _messagingService.EmitEventAsync(productCreatedEvent);
 
         return new CreatedResult(new Uri(req.Path.ToUriComponent()),
-            StandardResponse.Success(_mapper.Map<ProductDto>(dbResponse)));
+            StandardResponse.Success(newProduct));
     }
 }
