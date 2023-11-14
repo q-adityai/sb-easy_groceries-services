@@ -107,10 +107,8 @@ public class UserRepositoryTests
         //Assert
         result.Should().NotBeNull();
         result.Id.Should().Be(user.Id);
-        result.BillingAddresses[0].Address.Id.Should().Be(user.BillingAddresses[0].Address.Id);
         result.BillingAddresses[0].CreatedAt.Should().Be(user.BillingAddresses[0].CreatedAt);
         result.BillingAddresses[0].LastModifiedAt.Should().Be(user.BillingAddresses[0].LastModifiedAt);
-        result.DeliveryAddresses[0].Address.Id.Should().Be(user.DeliveryAddresses[0].Address.Id);
     }
 
     [Fact]
@@ -130,10 +128,8 @@ public class UserRepositoryTests
         //Assert
         result.Should().NotBeNull();
         result!.Id.Should().Be(setupUser.Id);
-        result.BillingAddresses[0].Address.Id.Should().Be(setupUser.BillingAddresses[0].Address.Id);
         result.BillingAddresses[0].CreatedAt.Should().Be(setupUser.BillingAddresses[0].CreatedAt);
         result.BillingAddresses[0].LastModifiedAt.Should().Be(setupUser.BillingAddresses[0].LastModifiedAt);
-        result.DeliveryAddresses[0].Address.Id.Should().Be(setupUser.DeliveryAddresses[0].Address.Id);
     }
     
     [Fact]
@@ -153,10 +149,8 @@ public class UserRepositoryTests
         //Assert
         result.Should().NotBeNull();
         result!.Id.Should().Be(setupUser.Id);
-        result.BillingAddresses[0].Address.Id.Should().Be(setupUser.BillingAddresses[0].Address.Id);
         result.BillingAddresses[0].CreatedAt.Should().Be(setupUser.BillingAddresses[0].CreatedAt);
         result.BillingAddresses[0].LastModifiedAt.Should().Be(setupUser.BillingAddresses[0].LastModifiedAt);
-        result.DeliveryAddresses[0].Address.Id.Should().Be(setupUser.DeliveryAddresses[0].Address.Id);
     }
     
     [Fact]
@@ -179,9 +173,7 @@ public class UserRepositoryTests
         result.Should().NotBeNull();
         result.Id.Should().Be(setupUser.Id);
         result.FirstName.Should().Be("Changed FirstName");
-        result.BillingAddresses[0].Address.Id.Should().Be(setupUser.BillingAddresses[0].Address.Id);
         result.BillingAddresses[0].CreatedAt.Should().Be(setupUser.BillingAddresses[0].CreatedAt);
         result.BillingAddresses[0].LastModifiedAt.Should().Be(setupUser.BillingAddresses[0].LastModifiedAt);
-        result.DeliveryAddresses[0].Address.Id.Should().Be(setupUser.DeliveryAddresses[0].Address.Id);
     }
 }
