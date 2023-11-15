@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using EasyGroceries.Common.Dto;
@@ -11,10 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace EasyGroceries.Order.Api;
 
@@ -41,8 +37,7 @@ public class HttpTrigger
             return new BadRequestObjectResult(StandardResponse.Failure(errorMessage));
         }
         
-        var order = await _context.Orders.Include(order => order.Items).ThenInclude(orderItem => orderItem.Price)
-            .Include(order => order.Items).ThenInclude(orderItem => orderItem.DiscountedPrice).FirstOrDefaultAsync(o => o.BasketId == basketId);
+        var order = await _context.Orders.FirstOrDefaultAsync(o => o.BasketId == basketId);
         if (order == null)
         {
             //We dont have a basket with the supplied Id, no point processing further
@@ -59,6 +54,7 @@ public class HttpTrigger
             return new NotFoundObjectResult(StandardResponse.Failure(errorMessage));
         }
 
+        var orderItems = await _context.OrderItems.Where(oi => oi.OrderId == order.Id).ToListAsync();
         var orderDto = new OrderDto()
         {
             OrderId = order.Id,
@@ -66,9 +62,9 @@ public class HttpTrigger
             BasketValue = new Money
             {
                 Currency = Currency.Gbp,
-                AmountInMinorUnits = order.Items.Sum(p => p.DiscountedPrice.AmountInMinorUnits * p.Quantity)
+                AmountInMinorUnits = orderItems.Sum(p => p.DiscountedPrice.AmountInMinorUnits * p.Quantity)
             },
-            Products = order.Items.Where(ot => ot.IncludeInDelivery).Select(ot => new OrderItemDto()
+            Products = orderItems.Where(ot => ot.IncludeInDelivery).Select(ot => new OrderItemDto()
             {
                 Name = ot.Name,
                 Description = ot.Description,
@@ -87,14 +83,14 @@ public class HttpTrigger
             }).ToList(),
             DeliveryAddress = new AddressDto
             {
-                Line1 = user.DefaultDeliveryAddress!.Line1,
-                Line2 = user.DefaultDeliveryAddress!.Line2,
-                Line3 = user.DefaultDeliveryAddress!.Line3,
-                City = user.DefaultDeliveryAddress!.City,
-                County = user.DefaultDeliveryAddress!.County,
-                Postcode = user.DefaultDeliveryAddress!.Postcode,
-                Country = user.DefaultDeliveryAddress!.Country,
-                CountryCode = user.DefaultDeliveryAddress!.CountryCode
+                Line1 = order.DeliveryAddress.Line1,
+                Line2 = order.DeliveryAddress.Line2,
+                Line3 = order.DeliveryAddress.Line3,
+                City = order.DeliveryAddress.City,
+                County = order.DeliveryAddress.County,
+                Postcode = order.DeliveryAddress.Postcode,
+                Country = order.DeliveryAddress.Country,
+                CountryCode = order.DeliveryAddress.CountryCode
             }
         };
         

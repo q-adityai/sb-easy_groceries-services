@@ -14,4 +14,5 @@ public class OrderContext : DbContext
 
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Entities.Order> Orders { get; set; } = null!;
+    public DbSet<OrderItem> OrderItems { get; set; } = null!;
 }

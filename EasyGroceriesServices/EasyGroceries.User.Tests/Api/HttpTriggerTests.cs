@@ -19,12 +19,12 @@ using Xunit;
 
 namespace EasyGroceries.User.Tests.Api;
 
-public class ApiTests
+public class HttpTriggerTests
 {
     private readonly IFixture _fixture;
     private readonly Mock<IMessagingService> _messagingServiceMock;
     private readonly IMapper _mapper;
-    public ApiTests()
+    public HttpTriggerTests()
     {
         _fixture = new Fixture().Customize(new AutoMoqCustomization());
 

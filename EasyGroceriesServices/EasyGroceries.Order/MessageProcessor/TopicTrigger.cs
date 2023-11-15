@@ -1,28 +1,28 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
 using EasyGroceries.Common.Entities;
 using EasyGroceries.Common.Enums;
 using EasyGroceries.Common.Messaging.Events;
 using EasyGroceries.Order.Model.Context;
 using EasyGroceries.Order.Model.Entities;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Address = EasyGroceries.Order.Model.Entities.Address;
 
 namespace EasyGroceries.Order.MessageProcessor;
 
 public class TopicTrigger
 {
     private readonly ILogger<TopicTrigger> _logger;
+    private readonly IMapper _mapper;
     private readonly OrderContext _context;
 
-    public TopicTrigger(ILogger<TopicTrigger> logger, OrderContext context)
+    public TopicTrigger(ILogger<TopicTrigger> logger, IMapper mapper, OrderContext context)
     {
         _logger = logger;
+        _mapper = mapper;
         _context = context;
     }
     
@@ -51,47 +51,17 @@ public class TopicTrigger
     
     private async Task ProcessUserCreatedEvent(UserCreatedEvent eventToProcess)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == eventToProcess.Id);
-        if (user != null)
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == eventToProcess.Id);
+        if (existingUser != null)
         {
-            _logger.LogError("User already exists: {@ExistingUser} - {@Event}", user, eventToProcess);
+            _logger.LogError("User already exists: {@ExistingUser} - {@Event}", existingUser, eventToProcess);
             return;
         }
-
-        var newUser = new User
-        {
-            Id = eventToProcess.Id,
-            FirstName = eventToProcess.FirstName,
-            LastName = eventToProcess.LastName,
-            Email = eventToProcess.Email,
-            PhoneNumber = eventToProcess.PhoneNumber,
-            DefaultDeliveryAddress = new Address
-            {
-                Line1 = eventToProcess.DefaultDeliveryAddress!.Line1,
-                Line2 = eventToProcess.DefaultDeliveryAddress!.Line2,
-                Line3 = eventToProcess.DefaultDeliveryAddress!.Line3,
-                City = eventToProcess.DefaultDeliveryAddress!.City,
-                County = eventToProcess.DefaultDeliveryAddress!.County,
-                Postcode = eventToProcess.DefaultDeliveryAddress!.Postcode,
-                Country = eventToProcess.DefaultDeliveryAddress!.Country,
-                CountryCode = eventToProcess.DefaultDeliveryAddress!.CountryCode
-            },
-            DefaultBillingAddress = new Address
-            {
-                Line1 = eventToProcess.DefaultBillingAddress!.Line1,
-                Line2 = eventToProcess.DefaultBillingAddress!.Line2,
-                Line3 = eventToProcess.DefaultBillingAddress!.Line3,
-                City = eventToProcess.DefaultBillingAddress!.City,
-                County = eventToProcess.DefaultBillingAddress!.County,
-                Postcode = eventToProcess.DefaultBillingAddress!.Postcode,
-                Country = eventToProcess.DefaultBillingAddress!.Country,
-                CountryCode = eventToProcess.DefaultBillingAddress!.CountryCode
-            }
-        };
+        
+        var user = _mapper.Map<User>(eventToProcess);
 
         _logger.LogInformation("Saving User: {@User}", user);
-
-        _context.Users.Add(newUser);
+        await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
     }
     
@@ -118,7 +88,7 @@ public class TopicTrigger
 
     private async Task ProcessProductCheckedOutEvent(ProductCheckedOutEvent eventToProcess)
     {
-        var order = await _context.Orders.Include(order => order.Items).FirstOrDefaultAsync(o =>
+        var existingOrder = await _context.Orders.FirstOrDefaultAsync(o =>
             o.BasketId == eventToProcess.BasketId && o.UserId == eventToProcess.UserId);
         
         var user = await _context.Users.Include(user => user.DefaultDeliveryAddress).FirstOrDefaultAsync(u => u.Id == eventToProcess.UserId);
@@ -128,14 +98,13 @@ public class TopicTrigger
             throw new Exception($"User with id: {eventToProcess.UserId} not found");
         }
 
-        if (order == null)
+        if (existingOrder == null)
         {
-            order = new Model.Entities.Order
+            var newOrder = new Model.Entities.Order
             {
                 BasketId = eventToProcess.BasketId,
                 UserId = eventToProcess.UserId,
-                Items = new List<OrderItem>(),
-                DeliveryAddress = new Address
+                DeliveryAddress = new DefaultAddress()
                 {
                     Line1 = user.DefaultDeliveryAddress!.Line1,
                     Line2 = user.DefaultDeliveryAddress!.Line2,
@@ -148,17 +117,22 @@ public class TopicTrigger
                 }
             };
 
-            order = (await _context.Orders.AddAsync(order)).Entity;
+            existingOrder = (await _context.Orders.AddAsync(newOrder)).Entity;
             await _context.SaveChangesAsync();
         }
 
-        if (!order.Items.Exists(i => i.Name.ToLowerInvariant() == eventToProcess.Name.ToLowerInvariant()))
+        var existingOrderItem = await _context.OrderItems.FirstOrDefaultAsync(oi =>
+            oi.OrderId == existingOrder.Id && oi.ProductId == eventToProcess.ProductId);
+        if (existingOrderItem == null)
         {
-            order.Items.Add(new OrderItem
+            var newOrderItem = new OrderItem
             {
+                Id = $"{Constants.OrderPrefix}{Constants.ProductPrefix}{Guid.NewGuid()}",
                 Name = eventToProcess.Name,
                 Description = eventToProcess.Description,
                 IncludeInDelivery = eventToProcess.IncludeInDelivery,
+                ProductId = eventToProcess.ProductId,
+                OrderId = existingOrder.Id,
                 Price = new Money
                 {
                     Currency = eventToProcess.Price.Currency,
@@ -171,9 +145,9 @@ public class TopicTrigger
                 },
                 DiscountPercentInMinorUnits = eventToProcess.DiscountPercentInMinorUnits,
                 Quantity = eventToProcess.Quantity
-            });
-
-            _context.Orders.Update(order);
+            };
+            
+            await _context.AddAsync(newOrderItem);
             await _context.SaveChangesAsync();
         }
     }

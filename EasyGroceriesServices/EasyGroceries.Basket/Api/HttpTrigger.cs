@@ -134,7 +134,7 @@ public class HttpTrigger
                 ProductId = product.Id,
                 SkuCode = product.Sku.Code,
                 Category = product.Category,
-                IncludeInDelivery = product.Category == ProductCategory.PromotionCoupon,
+                IncludeInDelivery = product.Category != ProductCategory.PromotionCoupon,
                 Name = product.Name,
                 Description = product.Description,
                 Price = new Money
