@@ -11,6 +11,6 @@ public class ProductProfile : Profile
     {
         CreateMap<ProductCreatedEvent, Product>()
             .ForMember(dst => dst.DiscountedPrice, opt => opt.MapFrom(src => src.Price.Clone()))
-            .ForMember(dst => dst.DiscountPercentInMinorUnits, opt => opt.MapFrom(src => 0));
+            .ForMember(dst => dst.AppliedDiscountPercentInMinorUnits, opt => opt.MapFrom(src => 0));
     }
 }

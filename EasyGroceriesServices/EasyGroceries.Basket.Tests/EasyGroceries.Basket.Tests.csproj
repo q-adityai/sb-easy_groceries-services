@@ -29,6 +29,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\EasyGroceries.Basket\EasyGroceries.Basket.csproj" />
+      <ProjectReference Include="..\EasyGroceries.Tests.Common\EasyGroceries.Tests.Common.csproj" />
     </ItemGroup>
 
 </Project>

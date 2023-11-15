@@ -1,4 +1,5 @@
 using EasyGroceries.Basket;
+using EasyGroceries.Basket.Configuration;
 using EasyGroceries.Basket.Model.Context;
 using EasyGroceries.Common.DependencyInjection;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -16,6 +17,9 @@ public class Program : FunctionsStartup
         
         builder.Services.AddLogging();
         builder.AddMessaging();
+        
+        var configuration = builder.GetContext().Configuration;
+        builder.Services.Configure<BasketApiOptions>(configuration.GetSection(BasketApiOptions.SectionName));
 
 
         builder.Services.AddAutoMapper(typeof(Program));

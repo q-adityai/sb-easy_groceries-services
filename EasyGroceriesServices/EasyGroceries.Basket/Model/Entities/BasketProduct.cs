@@ -1,15 +1,19 @@
+using System;
+using System.ComponentModel.DataAnnotations;
 using EasyGroceries.Common.Entities;
+using EasyGroceries.Common.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace EasyGroceries.Basket.Model.Entities;
 
 public class BasketProduct
 {
-    //public Product Product { get; set; } = null!;
+    [Key] public string Id { get; set; }
     public string ProductId { get; set; } = null!;
 
-    public string Sku { get; set; } = null!;
+    public string SkuCode { get; set; } = null!;
 
-    public string CategoryName { get; set; } = null!;
+    public ProductCategory Category { get; set; }
 
     public bool IncludeInDelivery { get; set; }
 
@@ -23,5 +27,11 @@ public class BasketProduct
     public int DiscountPercentInMinorUnits { get; set; }
 
     public bool DiscountApplicable { get; set; }
-    public long Quantity { get; set; } = 0;
+    public long Quantity { get; set; }
+    public string BasketId { get; set; } = null!;
+
+    public BasketProduct()
+    {
+        Id = $"{Constants.BasketPrefix}{Constants.ProductPrefix}{Guid.NewGuid()}";
+    }
 }

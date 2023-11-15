@@ -16,6 +16,7 @@ public class BasketContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
     public DbSet<Entities.Basket> Baskets { get; set; } = null!;
+    public DbSet<BasketProduct> BasketProducts { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,10 +36,6 @@ public class BasketContext : DbContext
             .OwnsOne(u => u.DiscountedPrice)
             .WithOwner();
 
-        modelBuilder.Entity<Entities.Basket>()
-            .OwnsMany(b => b.Products)
-            .WithOwner();
-        
         base.OnModelCreating(modelBuilder);
     }
 }
