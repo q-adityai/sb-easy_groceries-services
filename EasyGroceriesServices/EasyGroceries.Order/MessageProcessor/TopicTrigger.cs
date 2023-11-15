@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using EasyGroceries.Common.Entities;
 using EasyGroceries.Common.Enums;
+using EasyGroceries.Common.Extensions;
 using EasyGroceries.Common.Messaging.Events;
 using EasyGroceries.Order.Model.Context;
 using EasyGroceries.Order.Model.Entities;
@@ -41,6 +42,11 @@ public class TopicTrigger
                 await ProcessUserCreatedEvent(JsonConvert.DeserializeObject<UserCreatedEvent>(mySbMsg)!);
                 break;
             }
+            case EventType.UserUpdated:
+            {
+                await ProcessUserUpdatedEvent(JsonConvert.DeserializeObject<UserUpdatedEvent>(mySbMsg)!);
+                break;
+            }
             default:
             {
                 _logger.LogError("Unknown event received");
@@ -62,6 +68,28 @@ public class TopicTrigger
 
         _logger.LogInformation("Saving User: {@User}", user);
         await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+    }
+    
+    private async Task ProcessUserUpdatedEvent(UserUpdatedEvent eventToProcess)
+    {
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == eventToProcess.Id);
+        if (existingUser == null)
+        {
+            var newUser = _mapper.Map<User>(eventToProcess);
+            await _context.AddAsync(newUser);
+        }
+        else
+        {
+            existingUser.FirstName = eventToProcess.FirstName;
+            existingUser.LastName = eventToProcess.LastName;
+            existingUser.Email = eventToProcess.Email;
+            existingUser.PhoneNumber = eventToProcess.PhoneNumber;
+            existingUser.DefaultBillingAddress = eventToProcess.DefaultBillingAddress.Clone();
+            existingUser.DefaultDeliveryAddress = eventToProcess.DefaultDeliveryAddress.Clone();
+            _context.Update(existingUser);
+        }
+
         await _context.SaveChangesAsync();
     }
     

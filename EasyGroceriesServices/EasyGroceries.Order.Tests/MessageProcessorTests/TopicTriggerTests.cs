@@ -80,6 +80,53 @@ public class TopicTriggerTests
         await using var orderContext = CreateMockDbContext(nameof(UserSubscriberAsync_Invalid_Exits_No_Error));
         var service = new TopicTrigger(new Mock<ILogger<TopicTrigger>>().Object, _mapper, orderContext);
 
+        var setupEvent = _fixture.Build<ProductCreatedEvent>().With(x => x.Type, EventType.ProductCreated).Create();
+
+        //Act
+        var result = service.UserSubscriberAsync(JsonConvert.SerializeObject(setupEvent));
+        await result;
+
+        //Assert
+        result.IsCompletedSuccessfully.Should().BeTrue();
+    }
+    
+    [Fact]
+    public async Task UserSubscriberAsync_Processes_UserUpdatedEvent_Existing_User_Successfully()
+    {
+        //Arrange
+        await using var orderContext = CreateMockDbContext(nameof(UserSubscriberAsync_Processes_UserUpdatedEvent_Existing_User_Successfully));
+        var service = new TopicTrigger(new Mock<ILogger<TopicTrigger>>().Object, _mapper, orderContext);
+
+        var setupEvent = _fixture.Build<UserUpdatedEvent>().With(x => x.Type, EventType.UserUpdated).Create();
+
+        await orderContext.Users.AddAsync(_fixture.Build<User>().With(u => u.Id, setupEvent.Id).Create());
+        await orderContext.SaveChangesAsync();
+        
+        //Act
+        var result = service.UserSubscriberAsync(JsonConvert.SerializeObject(setupEvent));
+        await result;
+
+        //Assert
+        result.IsCompletedSuccessfully.Should().BeTrue();
+        orderContext.Users.Count().Should().Be(1);
+
+        var actualUser = orderContext.Users.First();
+        
+        actualUser.Id.Should().Be(setupEvent.Id);
+        actualUser.FirstName.Should().Be(setupEvent.FirstName);
+        actualUser.LastName.Should().Be(setupEvent.LastName);
+        actualUser.Email.Should().Be(setupEvent.Email);
+        actualUser.DefaultDeliveryAddress.Should().BeEquivalentTo(setupEvent.DefaultDeliveryAddress);
+        actualUser.DefaultBillingAddress.Should().BeEquivalentTo(setupEvent.DefaultBillingAddress);
+    }
+    
+    [Fact]
+    public async Task UserSubscriberAsync_Processes_UserUpdatedEvent_No_Existing_User_Successfully()
+    {
+        //Arrange
+        await using var orderContext = CreateMockDbContext(nameof(UserSubscriberAsync_Processes_UserUpdatedEvent_No_Existing_User_Successfully));
+        var service = new TopicTrigger(new Mock<ILogger<TopicTrigger>>().Object, _mapper, orderContext);
+
         var setupEvent = _fixture.Build<UserUpdatedEvent>().With(x => x.Type, EventType.UserUpdated).Create();
 
         //Act
@@ -88,6 +135,16 @@ public class TopicTriggerTests
 
         //Assert
         result.IsCompletedSuccessfully.Should().BeTrue();
+        orderContext.Users.Count().Should().Be(1);
+
+        var actualUser = orderContext.Users.First();
+        
+        actualUser.Id.Should().Be(setupEvent.Id);
+        actualUser.FirstName.Should().Be(setupEvent.FirstName);
+        actualUser.LastName.Should().Be(setupEvent.LastName);
+        actualUser.Email.Should().Be(setupEvent.Email);
+        actualUser.DefaultDeliveryAddress.Should().BeEquivalentTo(setupEvent.DefaultDeliveryAddress);
+        actualUser.DefaultBillingAddress.Should().BeEquivalentTo(setupEvent.DefaultBillingAddress);
     }
     
     [Fact]
