@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <AzureFunctionsVersion>V4</AzureFunctionsVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1"/>
+        <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0"/>
+        <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.2.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="6.0.24"/>
+        <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.2.0"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="host.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="local.settings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        </None>
+        <None Remove="Properties\launchSettings 5.json" />
+        <None Remove="Properties\launchSettings 4.json" />
+        <None Remove="Properties\launchSettings 3.json" />
+        <None Remove="Properties\launchSettings 2.json" />
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="obj\Debug\net6.0\" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\EasyGroceries.Common\EasyGroceries.Common.csproj"/>
+    </ItemGroup>
+</Project>
