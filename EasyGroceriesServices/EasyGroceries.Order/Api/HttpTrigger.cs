@@ -59,6 +59,8 @@ public class HttpTrigger
         {
             OrderId = order.Id,
             UserId = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
             BasketValue = new Money
             {
                 Currency = Currency.Gbp,
@@ -81,7 +83,7 @@ public class HttpTrigger
                 DiscountPercentInMinorUnits = ot.DiscountPercentInMinorUnits,
                 Quantity = ot.Quantity
             }).ToList(),
-            DeliveryAddress = new AddressDto
+            DeliveryAddress = new DefaultAddress
             {
                 Line1 = order.DeliveryAddress.Line1,
                 Line2 = order.DeliveryAddress.Line2,

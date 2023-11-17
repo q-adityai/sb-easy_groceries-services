@@ -12,5 +12,5 @@ public class OrderDto
     public string LastName { get; set; }
     public Money BasketValue { get; set; }
     public List<OrderItemDto> Products { get; set; }
-    public AddressDto DeliveryAddress { get; set; }
+    public DefaultAddress DeliveryAddress { get; set; }
 }
