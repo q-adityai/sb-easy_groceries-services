@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "EasyGroceries.Basket": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7224",
-      "launchBrowser": false
-    }
-  }
-}
