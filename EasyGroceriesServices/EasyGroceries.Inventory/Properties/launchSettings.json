@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "EasyGroceries.Inventory": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7232",
-      "launchBrowser": false
-    }
-  }
-}
